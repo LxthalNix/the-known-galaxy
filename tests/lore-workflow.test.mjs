@@ -10,7 +10,9 @@ import { bodySha, validateSubmission, downloadMainImage, prepareFiles, eventRefe
 import { stage, publishDraft, trackPublication } from '../scripts/lore-github.mjs';
 import { safeLoreHtml } from '../src/utils/safe-html.ts';
 
-const records = await loadArchive();
+// Keep workflow fixtures independent of newly submitted or edited production lore.
+const fixtureRoot = 'tests/fixtures/archive';
+const records = await loadArchive(fixtureRoot);
 const defaults = {
   'request-kind': 'New event', 'event-title': 'Workflow test fixture', year: '0', calendar: 'ABD',
   era: 'Exodus and Recovery (0 ABD–16 ABD)', factions: 'Jedi, Sith', 'event-types': 'Military',
@@ -26,7 +28,7 @@ function issue(overrides = {}, number = 99) {
 }
 async function sandbox(t) {
   const root = await mkdtemp(join(tmpdir(), 'known-galaxy-lore-test-'));
-  await cp('src/content/events', join(root, 'src/content/events'), { recursive: true });
+  await cp(join(fixtureRoot, 'src/content/events'), join(root, 'src/content/events'), { recursive: true });
   t.after(() => rm(root, { recursive: true, force: true }));
   return root;
 }
@@ -132,7 +134,7 @@ test('generated YAML safely quotes hostile titles and preserves the article with
 
 test('prepared new events and corrections pass the generated-reference check after reloading the archive', async (t) => {
   const scenarios = [
-    { 'event-title': 'Jedi Escape to the Dawn Temple on Spintir' },
+    { 'event-title': 'Isolated new-event workflow fixture' },
     { 'request-kind': 'Update an existing event', 'existing-event': 'purge-of-dathomir' },
   ];
   for (const values of scenarios) {
