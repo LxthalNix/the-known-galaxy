@@ -41,8 +41,8 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
 .archive-app { --era-accent: var(--timeline); --atmosphere: 62, 93, 124; --planet-color: #1b2934; overflow: clip; }
 .site-header { height: 84px; padding-inline: var(--page-gutter); display: flex; align-items: center; gap: 48px; position: relative; z-index: 20; border-bottom: 1px solid var(--border-subtle); background: var(--bg-deep); }
 .brand { display: flex; gap: 13px; align-items: center; flex-shrink: 0; }
-.brand > span { font-size: 13px; font-weight: 650; text-transform: uppercase; letter-spacing: .09em; }
-.brand small { display: block; color: var(--text-soft); font-weight: 400; letter-spacing: .17em; font-size: 9px; margin-top: 5px; }
+.brand img { display: block; width: 154px; height: auto; }
+
 .site-header nav { display: flex; align-items: center; gap: 30px; height: 100%; font-size: 12px; }
 .site-header nav > a { display: flex; align-items: center; height: 100%; position: relative; }
 .nav-active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--timeline); }
@@ -251,7 +251,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
   .site-header { gap: 24px; height: 76px; }
   .site-header nav { display: none; }
   .header-tools { gap: 12px; }
-  .brand > span { font-size: 11px; }
+  .brand img { width: 132px; }
   .brand { gap: 9px; }
   .search input { width: 135px; }
   .hero { min-height: 410px; }
@@ -272,9 +272,9 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
   html { scroll-padding-top: 20px; }
   .site-header { height: auto; min-height: 115px; padding-block: 17px 12px; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
   .brand { grid-column: 1; }
-  .brand img { width: 29px; height: 29px; }
-  .brand > span { font-size: 11px; letter-spacing: .055em; }
-  .brand small { font-size: 8px; }
+  .brand img { width: 116px; }
+
+
   .header-tools { display: contents; }
   .filters-button { grid-column: 2; grid-row: 1; padding: 8px 10px; font-size: 11px; }
   .search { grid-column: 1 / -1; grid-row: 2; border-top: 1px solid var(--border-subtle); padding-top: 3px; }

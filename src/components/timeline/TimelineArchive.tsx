@@ -190,7 +190,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
 
   return <div className="archive-app" style={{ '--era-accent': activeTheme.theme.accent, '--atmosphere': activeTheme.theme.atmosphere, '--planet-color': activeTheme.theme.planet } as CSSProperties}>
     <header className="site-header">
-      <a className="brand" href={withBase('', base)} aria-label="The Known Galaxy archive home"><img src={withBase('images/branding/logo.svg', base)} width="36" height="36" alt="" /><span>The Known Galaxy<small>Lore archive</small></span></a>
+      <a className="brand" href={withBase('', base)} aria-label="The Known Galaxy archive home"><img src={withBase('images/branding/tkg-logo.png', base)} width="2299" height="894" alt="The Known Galaxy" /></a>
       <nav aria-label="Main navigation"><a href="#chronology" className="nav-active" aria-current="page">Timeline</a></nav>
       <div className="header-tools">
         <div className="search" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setSearchOpen(false); }}>
