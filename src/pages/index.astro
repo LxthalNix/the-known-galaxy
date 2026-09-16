@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import TimelineArchive from '../components/timeline/TimelineArchive';
 import { compareEvents } from '../utils/chronology';
 import { withBase, contentWithBase } from '../utils/paths';
+import { safeLoreHtml } from '../utils/safe-html';
 import type { LoreEvent } from '../types/events';
 import '../styles/global.css';
 
@@ -20,7 +21,7 @@ for (const entry of entries) {
 const base = import.meta.env.BASE_URL;
 const events: LoreEvent[] = entries.map((entry) => ({
   ...entry.data,
-  html: contentWithBase(entry.rendered?.html ?? '', base),
+  html: contentWithBase(safeLoreHtml(entry.rendered?.html ?? ''), base),
   searchText: [entry.data.title, entry.data.summary, ...entry.data.characters, ...entry.data.locations, ...entry.data.types, entry.body ?? ''].join(' ').toLocaleLowerCase(),
 })).sort(compareEvents);
 const canonical = new URL(withBase('', base), Astro.site);

@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { eras } from '../../data/eras';
+import { safeLoreHtml } from '../../utils/safe-html';
+import css from '../../styles/global.css?inline';
+
+export async function getStaticPaths() {
+  if (process.env.LORE_REVIEW_PREVIEWS !== '1') return [];
+  const entries = await getCollection('events', ({ data }) => !data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.data.slug }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const event = entry.data;
+const era = eras.find((e) => e.id === event.era);
+let imageData = '';
+if (event.image) {
+  const publicRoot = resolve('public'), imagePath = resolve(publicRoot, event.image.replace(/^\//, ''));
+  if (!imagePath.startsWith(`${publicRoot}/`) && !imagePath.startsWith(`${publicRoot}\\`)) throw new Error('Preview image escapes public/.');
+  const bytes = await readFile(imagePath);
+  const extension = imagePath.split('.').pop()?.toLowerCase();
+  const mime = extension === 'webp' ? 'image/webp' : extension === 'png' ? 'image/png' : extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : '';
+  if (!mime) throw new Error('Review images must be PNG, JPEG, or WebP.');
+  imageData = `data:${mime};base64,${bytes.toString('base64')}`;
+}
+// Inline article imagery is left as links in the offline preview; the selected main image is embedded.
+const html = safeLoreHtml(entry.rendered?.html ?? '').replace(/<img\b[^>]*>/g, '<p>[Inline image: check this asset in the pull request.]</p>');
+---
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Review: {event.title}</title><style is:inline set:html={css}></style><style is:inline>body{padding:24px}.review-header,.record{max-width:1200px;margin:auto}.review-header{margin-bottom:24px}.review-header p{font-size:13px;color:var(--text-muted);line-height:1.7}.record{padding-top:24px}.archive-image>img{opacity:1}.record-layout{align-items:start}.review-card{position:relative;max-width:280px;margin:24px 0}.review-card .event-card{position:static;width:100%;bottom:auto}.review-card .event-title{margin:0}.review-card .event-card-top{font-size:11px}</style></head>
+  <body>
+    <header class="review-header"><p class="eyebrow">Editorial preview · not yet published</p><h1>{event.title}</h1><p>Review the article, chronology, metadata, and selected imagery. This file opens directly in your browser. {event.submissionIssue && <a href={`https://github.com/LxthalNix/the-known-galaxy/issues/${event.submissionIssue}`}>Open submission and sources ↗</a>}</p><div class={`review-card faction-${event.factions.length > 1 ? 'both' : event.factions[0]} importance-${event.importance}`}><div class="event-card"><div class="event-card-top"><span class="event-date">{event.year} {event.calendar}</span><span>{event.importance}</span></div><h2 class="event-title">{event.title}</h2></div></div></header>
+    <main class="record"><div class="record-layout"><div class="archive-image">{imageData ? <img src={imageData} alt={event.imageAlt} /> : <div class="image-caption"><p>Imagery pending</p><span>No main image supplied.</span></div>}</div><article class="record-content"><div class="record-date-row"><span class="record-date">{event.year} {event.calendar}</span><span>{event.factions.join(' & ')}</span></div><h2>{event.title}</h2><p class="record-summary">{event.summary}</p><div class="lore-body" set:html={html}></div><dl class="record-metadata"><div><dt>Era</dt><dd>{era?.name}</dd></div><div><dt>Types / importance</dt><dd>{event.types.join(' · ')} / {event.importance}</dd></div><div><dt>Locations</dt><dd>{event.locations.join(' · ') || 'Not recorded'}</dd></div><div><dt>Characters</dt><dd>{event.characters.join(' · ') || 'Not recorded'}</dd></div><div><dt>Related slugs</dt><dd>{event.relatedEvents.join(' · ') || 'None'}</dd></div><div><dt>Same-year order</dt><dd>{event.timelineOrder}</dd></div><div><dt>Image alt text</dt><dd>{event.imageAlt || 'No image'}</dd></div></dl></article></div></main>
+  </body>
+</html>
