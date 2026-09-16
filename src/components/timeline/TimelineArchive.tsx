@@ -34,6 +34,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
   const suppressClick = useRef(false);
   const reducedMotion = useRef(false);
   const selected = events.find((event) => event.slug === selectedSlug);
+  const recordOpen = Boolean(selected);
   const shownEras = useMemo(() => eras.filter((era) => era.end !== null || events.some((event) => event.era === era.id)), [events]);
   const layout = useMemo(() => layoutTimeline(events, shownEras), [events, shownEras]);
   const visible = useMemo(() => events.filter((event) => matchesFilters(event, filters)), [events, filters]);
@@ -98,13 +99,13 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
   }, [events, defaultEvent, layout, moveTo]);
 
   useEffect(() => {
-    if (!selectedSlug) return;
+    if (!recordOpen) return;
     const frame = requestAnimationFrame(() => {
       recordRef.current?.querySelector<HTMLElement>('#record-title')?.focus({ preventScroll: true });
       recordRef.current?.scrollIntoView({ block: 'start', behavior: reducedMotion.current ? 'instant' : 'smooth' });
     });
     return () => cancelAnimationFrame(frame);
-  }, [selectedSlug]);
+  }, [recordOpen]);
 
   function closeRecord() {
     const slug = selectedSlug;
