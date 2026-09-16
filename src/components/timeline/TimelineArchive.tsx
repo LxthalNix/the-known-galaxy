@@ -15,7 +15,7 @@ function readHash() {
 
 export default function TimelineArchive({ events, base }: { events: LoreEvent[]; base: string }) {
   const defaultEvent = events.find((event) => event.slug === 'purge-of-dathomir') ?? events[0];
-  const [selectedSlug, setSelectedSlug] = useState<string | null>(defaultEvent?.slug ?? null);
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
   const [filters, setFilters] = useState<Filters>(emptyFilters);
   const [filterOpen, setFilterOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -24,8 +24,8 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
   const [viewport, setViewport] = useState({ x: 0, width: 1 });
   const [activeEra, setActiveEra] = useState(defaultEvent?.era ?? eras[0].id);
   const [notice, setNotice] = useState('');
-  const [filteredSelection, setFilteredSelection] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
+  const recordRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
   const resultRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -57,7 +57,6 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
       setNotice('Filters cleared to reveal the selected record.');
     } else setNotice('');
     setSelectedSlug(slug);
-    setFilteredSelection(false);
     setSearchOpen(false);
     setQuery('');
     setSearchIndex(-1);
@@ -77,11 +76,15 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
     function syncHash(initial = false) {
       const slug = readHash();
       if (slug === 'chronology' || slug === 'main-content') {
-        if (initial && defaultEvent) selectRef.current(defaultEvent.slug, false, false);
+        if (initial && defaultEvent) moveTo(layout.events.find((item) => item.event.slug === defaultEvent.slug)?.x ?? 0, false);
         return;
       }
       if (slug && events.some((event) => event.slug === slug)) selectRef.current(slug, false, !initial);
-      else if (!slug && defaultEvent) selectRef.current(defaultEvent.slug, false, !initial);
+      else if (!slug) {
+        setSelectedSlug(null);
+        setNotice('');
+        if (initial && defaultEvent) moveTo(layout.events.find((item) => item.event.slug === defaultEvent.slug)?.x ?? 0, false);
+      }
       else {
         setNotice('That archive record could not be found. Select an event to continue.');
         setSelectedSlug(null);
@@ -92,12 +95,28 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
     window.addEventListener('hashchange', onHash);
     window.addEventListener('popstate', onHash);
     return () => { media.removeEventListener('change', updateMotion); window.removeEventListener('hashchange', onHash); window.removeEventListener('popstate', onHash); };
-  }, [events, defaultEvent]);
+  }, [events, defaultEvent, layout, moveTo]);
+
+  useEffect(() => {
+    if (!selectedSlug) return;
+    const frame = requestAnimationFrame(() => {
+      recordRef.current?.querySelector<HTMLElement>('#record-title')?.focus({ preventScroll: true });
+      recordRef.current?.scrollIntoView({ block: 'start', behavior: reducedMotion.current ? 'instant' : 'smooth' });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [selectedSlug]);
+
+  function closeRecord() {
+    const slug = selectedSlug;
+    setSelectedSlug(null);
+    setNotice('');
+    window.history.pushState(null, '', window.location.pathname + window.location.search);
+    if (slug) nodeRefs.current.get(slug)?.focus();
+  }
 
   useEffect(() => {
     if (selectedSlug && !visibleIds.has(selectedSlug)) {
       setSelectedSlug(null);
-      setFilteredSelection(true);
       setNotice('The selected record is hidden by the active filters.');
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
@@ -218,7 +237,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
         <div className="timeline-footnote"><span>Oldest<Icon name="right" />Newest</span><span className="desktop-help">Drag to explore · Scroll to travel · ← → to navigate</span><span className="mobile-help">Swipe to explore · Tap a record</span><span>BBD / ABD</span></div>
       </section>
       <p className={`archive-notice ${notice ? '' : 'sr-only'}`} role="status">{notice}</p>
-      <div className="record-wrap"><EventDetail key={selectedSlug} event={selected} events={events} base={base} onSelect={selectEvent} hidden={filteredSelection} /></div>
+      {selected && <div className="record-wrap" ref={recordRef}><EventDetail key={selected.slug} event={selected} events={events} base={base} onSelect={selectEvent} onClose={closeRecord} /></div>}
       <p className="sr-only" role="status">{selected ? `Selected record: ${formatDate(selected.year, selected.calendar)}, ${selected.title}` : ''}</p>
     </main>
     <footer className="site-footer"><span>The Known Galaxy <small>An evolving community lore archive.</small></span><p>An alternate Star Wars chronology for the Roblox community.<br />Unofficial fan project. Not affiliated with Lucasfilm or Disney.</p><div className="footer-actions"><a href="#chronology">Return to chronology ↑</a></div></footer>
