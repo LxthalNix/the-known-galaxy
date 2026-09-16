@@ -25,6 +25,7 @@ A location is a named place involved in the event; a character is a named indivi
 
 ## Existing records for updates and related events
 Related events must come from this published record list. Paste one exact slug or full event link per line, never a display title. Do not refer to the event itself or to unpublished drafts. Do not infer a relationship just to populate the field.
+- [Bombing of the Temple!](https://lxthalnix.github.io/the-known-galaxy/#bombing-of-the-temple) — `bombing-of-the-temple`
 - [Creation of the KAA](https://lxthalnix.github.io/the-known-galaxy/#creation-of-the-kaa) — `creation-of-the-kaa`
 - [Destruction of the Grand Jedi Library on Ossus](https://lxthalnix.github.io/the-known-galaxy/#destruction-of-ossus-library) — `destruction-of-ossus-library`
 - [Exile of Master Tiberius](https://lxthalnix.github.io/the-known-galaxy/#exile-of-master-tiberius) — `exile-of-master-tiberius`
