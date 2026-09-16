@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import YAML from 'yaml';
-import { loadArchive, formDefinition, generatedFiles, referenceData, parseEventFile } from '../scripts/lore-form.mjs';
+import { loadArchive, formDefinition, generatedFiles, referenceData, parseEventFile, syncForm } from '../scripts/lore-form.mjs';
 import { bodySha, validateSubmission, downloadMainImage, prepareFiles, eventReference } from '../scripts/lore-submission.mjs';
 import { stage, publishDraft, trackPublication } from '../scripts/lore-github.mjs';
 import { safeLoreHtml } from '../src/utils/safe-html.ts';
@@ -128,6 +128,22 @@ test('generated YAML safely quotes hostile titles and preserves the article with
   assert.equal(parseEventFile(generated.content, generated.path).data.title, 'Test: "title" # safe');
   assert.equal((await loadArchive(root)).length, records.length + 1);
   const original = records[0]; assert.equal(await readFile(join(root, original.path), 'utf8'), original.content);
+});
+
+test('prepared new events and corrections pass the generated-reference check after reloading the archive', async (t) => {
+  const scenarios = [
+    { 'event-title': 'Jedi Escape to the Dawn Temple on Spintir' },
+    { 'request-kind': 'Update an existing event', 'existing-event': 'purge-of-dathomir' },
+  ];
+  for (const values of scenarios) {
+    const root = await sandbox(t);
+    const result = validateSubmission(issue(values), records);
+    assert.equal(result.valid, true, JSON.stringify(result.errors));
+    await prepareFiles(result, records, root);
+    await syncForm(root, true);
+    const reloaded = await loadArchive(root);
+    assert.deepEqual(generatedFiles([...reloaded].reverse()), generatedFiles(reloaded));
+  }
 });
 
 test('preparation imports a decoded main image into the generated local metadata path', async (t) => {

@@ -41,7 +41,8 @@ export async function loadArchive(root = '.') {
 export function referenceData(records) {
   const canonical = records.filter((r) => !r.data.draft && !r.data.demo);
   const names = (key) => [...new Set(canonical.flatMap((r) => r.data[key]))].sort((a, b) => a.localeCompare(b, 'en'));
-  return { locations: names('locations'), characters: names('characters'), events: records.filter((r) => !r.data.draft) };
+  const events = records.filter((r) => !r.data.draft).sort((a, b) => a.data.slug.localeCompare(b.data.slug, 'en'));
+  return { locations: names('locations'), characters: names('characters'), events };
 }
 
 export function formDefinition(records) {
