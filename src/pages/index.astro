@@ -1,0 +1,84 @@
+---
+import { getCollection } from 'astro:content';
+import { eras } from '../data/eras';
+import { chronologyKey, formatDate } from '../utils/chronology';
+import '../styles/global.css';
+
+const events = (await getCollection('events'))
+  .filter((event) => !event.data.draft)
+  .sort((a, b) => chronologyKey(a.data.year, a.data.calendar) - chronologyKey(b.data.year, b.data.calendar));
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content="Explore the lore timeline of The Known Galaxy." />
+    <meta name="theme-color" content="#05070d" />
+    <title>The Known Galaxy — Lore Timeline</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand-mark" aria-hidden="true">TKG</div>
+      <div>
+        <p class="eyebrow">Galactic Archive</p>
+        <h1>The Known Galaxy</h1>
+      </div>
+      <span class="foundation-badge">Foundation build</span>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="intro-title">
+        <p class="eyebrow">BBD / ABD chronology</p>
+        <h2 id="intro-title">Lore timeline foundation</h2>
+        <p>
+          This temporary page confirms that the repository, content model and GitHub Pages build are wired correctly.
+          The finished interactive horizontal timeline will replace this scaffold.
+        </p>
+      </section>
+
+      <section class="timeline-shell" aria-labelledby="timeline-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Chronology</p>
+            <h2 id="timeline-title">Known events</h2>
+          </div>
+          <p>{events.length} canonical seed events</p>
+        </div>
+
+        <div class="timeline" tabindex="0" aria-label="Horizontally scrollable timeline">
+          <div class="timeline-line" aria-hidden="true"></div>
+          {events.map((event) => (
+            <article class:list={['event-card', event.data.factions.includes('jedi') && 'is-jedi', event.data.factions.includes('sith') && 'is-sith']}>
+              <p class="event-date">{formatDate(event.data.year, event.data.calendar)}</p>
+              <h3>{event.data.title}</h3>
+              <p>{event.data.summary}</p>
+              <div class="tags">
+                {event.data.factions.map((faction) => <span>{faction}</span>)}
+                <span>{event.data.importance}</span>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="eras" aria-labelledby="eras-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Structure</p>
+            <h2 id="eras-title">Configured eras</h2>
+          </div>
+        </div>
+        <div class="era-grid">
+          {eras.map((era) => (
+            <article>
+              <h3>{era.name}</h3>
+              <p>{era.mood}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
