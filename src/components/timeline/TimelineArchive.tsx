@@ -191,7 +191,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
   return <div className="archive-app" style={{ '--era-accent': activeTheme.theme.accent, '--atmosphere': activeTheme.theme.atmosphere, '--planet-color': activeTheme.theme.planet } as CSSProperties}>
     <header className="site-header">
       <a className="brand" href={withBase('', base)} aria-label="The Known Galaxy archive home"><img src={withBase('images/branding/logo.svg', base)} width="36" height="36" alt="" /><span>The Known Galaxy<small>Lore archive</small></span></a>
-      <nav aria-label="Main navigation"><a href="#chronology" className="nav-active" aria-current="page">Timeline</a><span className="future-nav" title="A future archive section">Lore <small>Soon</small></span><span className="future-nav" title="A future archive section">Worlds <small>Soon</small></span></nav>
+      <nav aria-label="Main navigation"><a href="#chronology" className="nav-active" aria-current="page">Timeline</a></nav>
       <div className="header-tools">
         <div className="search" onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setSearchOpen(false); }}>
           <Icon name="search" /><input ref={searchRef} aria-label="Search archive" role="combobox" aria-autocomplete="list" aria-controls="search-results" aria-expanded={searchOpen && Boolean(terms.length)} aria-activedescendant={searchIndex >= 0 && searchOpen ? `search-result-${searchIndex}` : undefined} placeholder="Search the archive" value={query} onChange={(event) => { setQuery(event.target.value); setSearchOpen(true); setSearchIndex(-1); }} onFocus={() => setSearchOpen(true)} onKeyDown={searchKey} /><kbd>/</kbd>
@@ -224,7 +224,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
       <div className="record-wrap"><EventDetail key={selectedSlug} event={selected} events={events} base={base} onSelect={selectEvent} hidden={filteredSelection} /></div>
       <p className="sr-only" role="status">{selected ? `Selected record: ${formatDate(selected.year, selected.calendar)}, ${selected.title}` : ''}</p>
     </main>
-    <footer className="site-footer"><span>The Known Galaxy <small>An evolving community lore archive.</small></span><p>An alternate Star Wars chronology for the Roblox community.<br />Unofficial fan project. Not affiliated with Lucasfilm or Disney.</p><div className="footer-actions"><a href="https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml">Submit or update an event ↗</a><a href="#chronology">Return to chronology ↑</a></div></footer>
+    <footer className="site-footer"><span>The Known Galaxy <small>An evolving community lore archive.</small></span><p>An alternate Star Wars chronology for the Roblox community.<br />Unofficial fan project. Not affiliated with Lucasfilm or Disney.</p><div className="footer-actions"><a href="#chronology">Return to chronology ↑</a></div></footer>
     <FilterPanel open={filterOpen} onClose={() => { setFilterOpen(false); filtersButtonRef.current?.focus({ preventScroll: true }); }} filters={filters} onChange={setFilters} visible={visible.length} total={events.length} />
   </div>;
 }
