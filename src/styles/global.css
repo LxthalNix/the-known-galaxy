@@ -221,7 +221,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
 .site-footer > span { font-family: var(--display); font-size: 18px; }
 .site-footer small { display: block; font-family: var(--ui); color: var(--text-soft); font-size: 10px; margin-top: 8px; }
 .site-footer p { margin: 0; color: var(--text-soft); font-size: 9px; line-height: 1.9; }
-.site-footer > a { font-size: 10px; color: var(--text-muted); }
+.footer-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 10px; color: var(--text-muted); }
 .filter-dialog { width: min(480px, calc(100% - 32px)); max-height: calc(100dvh - 32px); border: 1px solid var(--border-subtle); background: var(--surface); color: var(--text-primary); padding: 28px; box-shadow: 0 30px 100px #0008; }
 .filter-dialog::backdrop { background: #03070dbe; backdrop-filter: blur(5px); }
 .filter-heading { display: flex; align-items: center; justify-content: space-between; }
@@ -326,7 +326,7 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
   .record-metadata { gap: 20px; }
   .site-footer { padding-block: 25px; gap: 24px; }
   .site-footer > span { font-size: 17px; }
-  .site-footer > a { font-size: 9px; }
+  .footer-actions { font-size: 9px; }
   .filter-dialog { padding: 24px 20px; width: 100%; max-width: 100%; max-height: 90dvh; margin: auto 0 0; border-bottom: 0; }
   .filter-footer { position: sticky; bottom: -24px; background: var(--surface); padding-block: 15px; margin-bottom: -24px; }
 }
