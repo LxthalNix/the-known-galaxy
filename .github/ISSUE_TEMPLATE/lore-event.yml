@@ -1,0 +1,154 @@
+name: Submit or update a lore event
+description: Propose a timeline event or request a correction, with optional images and supporting files.
+title: "[Lore] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Contribute to The Known Galaxy
+        Complete this form without editing code or Markdown metadata. A reviewer will check the lore, prepare the archive files, and open a pull request. Submitting or closing an issue does **not** publish it.
+
+        For corrections, link the existing record and supply the complete proposed replacement below. Submissions and attachments are public.
+  - type: dropdown
+    id: request-kind
+    attributes:
+      label: Request type
+      options:
+        - New event
+        - Update an existing event
+    validations:
+      required: true
+  - type: input
+    id: existing-event
+    attributes:
+      label: Existing event link
+      description: Required for updates. Paste the website link including its event hash. Leave blank for a new event.
+      placeholder: https://lxthalnix.github.io/the-known-galaxy/#purge-of-dathomir
+  - type: input
+    id: event-title
+    attributes:
+      label: Event title
+      description: The title readers should see in the timeline.
+    validations:
+      required: true
+  - type: input
+    id: year
+    attributes:
+      label: Year
+      description: A whole number of zero or greater. Select the calendar separately; use 0 ABD for the origin.
+      placeholder: "17"
+    validations:
+      required: true
+  - type: dropdown
+    id: calendar
+    attributes:
+      label: Calendar
+      options:
+        - BBD
+        - ABD
+    validations:
+      required: true
+  - type: dropdown
+    id: era
+    attributes:
+      label: Era
+      description: Select the era containing the proposed date. A reviewer will verify the year and era match.
+      options:
+        - The Unfamiliar and Unknown (31–20 BBD)
+        - The Eminence (19–1 BBD)
+        - Exodus and Recovery (0–16 ABD)
+        - Hallowed Preparations (17–28 ABD)
+        - Era of Expansion (29–40 ABD)
+        - To Be Determined (41 ABD onward)
+    validations:
+      required: true
+  - type: dropdown
+    id: factions
+    attributes:
+      label: Factions
+      description: Select one or both factions.
+      multiple: true
+      options:
+        - Jedi
+        - Sith
+    validations:
+      required: true
+  - type: dropdown
+    id: event-types
+    attributes:
+      label: Event types
+      description: Select every applicable type.
+      multiple: true
+      options:
+        - Political
+        - Military
+        - Discovery
+        - Personal
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: importance
+    attributes:
+      label: Importance
+      description: A reviewer may adjust this to keep the archive consistent.
+      options:
+        - Major
+        - Standard
+        - Minor
+      default: 1
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Short summary
+      description: One or two sentences for the timeline preview.
+    validations:
+      required: true
+  - type: textarea
+    id: article
+    attributes:
+      label: Full event article
+      description: Write the proposed lore. Paragraphs, headings, lists, and Markdown are supported. Keep uncertain details in the sources field below rather than presenting them as established facts.
+    validations:
+      required: true
+  - type: textarea
+    id: locations
+    attributes:
+      label: Locations
+      description: Optional. List one approved place name per line.
+  - type: textarea
+    id: characters
+    attributes:
+      label: Characters
+      description: Optional. List one approved character name per line.
+  - type: textarea
+    id: related-events
+    attributes:
+      label: Related events and chronology notes
+      description: Optional. Link related published records. If events share a year, explain their intended order rather than choosing a technical ordering number.
+  - type: textarea
+    id: imagery
+    attributes:
+      label: Images and supporting attachments
+      description: Optional. Drag, paste, or upload images and supporting files here. Identify the main dossier image and add a descriptive caption or alt text for each image, plus its source or permission to use it. Reviewers will copy accepted images into the repository; attached files are not published automatically.
+      placeholder: |
+        Main image: [attach here]
+        Alt text:
+        Image source or permission:
+        Additional supporting files:
+  - type: textarea
+    id: sources
+    attributes:
+      label: Lore sources and approval
+      description: Link supporting records or attach evidence. State who approved the lore, or say it is awaiting approval. For updates, explain what changed. Identify any date or factual uncertainty.
+    validations:
+      required: true
+  - type: checkboxes
+    id: review
+    attributes:
+      label: Review process
+      options:
+        - label: I understand this is a proposal and will appear on the website only after editorial review and a merged archive pull request.
+          required: true

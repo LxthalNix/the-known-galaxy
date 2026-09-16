@@ -36,7 +36,9 @@ The page and vertical touch scrolling remain available. Wheel input is consumed 
 
 ## Edit lore and imagery
 
-See [Adding an event](docs/ADDING_AN_EVENT.md). Copy `templates/event.md` into `src/content/events/`, complete the metadata and article, and set `draft: false` after approval. Adding an event never requires editing a component.
+Contributors can use the [lore event form](https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml) to submit new events or corrections with dropdowns, text fields, and optional attachments. The website footer links to the same form. An issue is a proposal: a maintainer reviews it and prepares a pull request before anything appears on the website.
+
+See [Adding an event](docs/ADDING_AN_EVENT.md) for submission and maintainer instructions. Maintainers copy `templates/event.md` into `src/content/events/`, complete the metadata and article, and set `draft: false` after approval. Adding an event never requires editing a component.
 
 Images live in `public/images/events/`; frontmatter uses `image: "/images/events/my-event.webp"` and descriptive `imageAlt`. The base path is added automatically. No image or an unavailable image produces a neutral archive fallback. Major events may display a small image preview; only selected dossier images and eligible previews load lazily. Replace `public/images/branding/logo.svg` with the approved logo. The current neutral orbital symbol is a placeholder.
 

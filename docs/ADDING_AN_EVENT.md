@@ -1,8 +1,28 @@
 # Adding an event
 
-Lore lives in Markdown files. You never need to edit a React component to publish another record.
+The easiest way to contribute is the [lore event form](https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml). You do not need to write metadata or edit code. The website footer also links to this form.
 
-## Add a record with GitHub
+## Submit an event or correction
+
+1. Sign in to GitHub and open the form. Choose **New event** or **Update an existing event**. For updates, paste the existing event's website link including its hash.
+2. Complete the title, year, calendar, era, factions, types, importance, summary, and full article. Select multiple factions or types where appropriate. For corrections, provide the complete proposed replacement and explain the changes under **Lore sources and approval**.
+3. Optionally add locations, characters, related links, and chronology notes. Drag, paste, or upload images and supporting files into **Images and supporting attachments**. Identify the main image, describe each image for alt text, and provide its source or permission to use it.
+4. Supply lore sources and the approval status, then create the issue. A reviewer can ask questions and discuss changes in the issue.
+5. After approval, a maintainer prepares the Markdown and accepted image files in a pull request. Passing checks and merging into `main` publishes the event through GitHub Pages.
+
+Creating, editing, or closing an issue does not change the website. There is no issue-to-publication automation. Issue responses become Markdown in the issue body, and later edits are made through that body rather than reopening the original form. GitHub forms enforce required entries and fixed dropdown choices, but cannot validate numeric years, conditional fields, or date/era combinations; reviewers and the archive's build checks handle those constraints. Keep form era choices in `.github/ISSUE_TEMPLATE/lore-event.yml` aligned with `src/data/eras.ts` when changing the chronology.
+
+## Maintainer review and publication
+
+Use the manual instructions below to turn an approved issue into archive files. Map the displayed faction, type, and importance names to the lowercase metadata values. Map the era name to its id in the reference table. Choose a unique slug for new events; preserve an existing slug for corrections so shared links keep working. Keep unapproved lore as `draft: true`; issue submission is not evidence of approval. Real approved lore uses `demo: false`.
+
+Download accepted images, optimize them, and commit them under `public/images/events/` with descriptive `imageAlt`. Do not paste GitHub attachment URLs into the primary `image` field, which intentionally accepts local paths only. Supporting documents stay in the issue unless an editor intentionally adds them to the archive. Resolve any missing update link, unclear chronology, image permission, or missing alt text before publishing.
+
+Reference the submission in the pull request description with `Closes #ISSUE_NUMBER` so it closes when the change merges. For corrections, edit the existing record rather than creating a duplicate. Checks must pass before merging. Follow-up edits to a closed issue need a new reviewed pull request to change the website.
+
+Lore still lives in Markdown files. You never need to edit a React component to publish another record.
+
+## Prepare archive files with GitHub
 
 1. Open `templates/event.md` and copy its contents. The template lives outside the content collection so it cannot accidentally become a public record.
 2. In `src/content/events/`, choose **Add file → Create new file**. Name it with lowercase words and hyphens, such as `approved-event-name.md`.

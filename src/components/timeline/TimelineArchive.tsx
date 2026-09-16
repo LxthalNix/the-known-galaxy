@@ -224,7 +224,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
       <div className="record-wrap"><EventDetail key={selectedSlug} event={selected} events={events} base={base} onSelect={selectEvent} hidden={filteredSelection} /></div>
       <p className="sr-only" role="status">{selected ? `Selected record: ${formatDate(selected.year, selected.calendar)}, ${selected.title}` : ''}</p>
     </main>
-    <footer className="site-footer"><span>The Known Galaxy <small>An evolving community lore archive.</small></span><p>An alternate Star Wars chronology for the Roblox community.<br />Unofficial fan project. Not affiliated with Lucasfilm or Disney.</p><a href="#chronology">Return to chronology ↑</a></footer>
+    <footer className="site-footer"><span>The Known Galaxy <small>An evolving community lore archive.</small></span><p>An alternate Star Wars chronology for the Roblox community.<br />Unofficial fan project. Not affiliated with Lucasfilm or Disney.</p><div className="footer-actions"><a href="https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml">Submit or update an event ↗</a><a href="#chronology">Return to chronology ↑</a></div></footer>
     <FilterPanel open={filterOpen} onClose={() => { setFilterOpen(false); filtersButtonRef.current?.focus({ preventScroll: true }); }} filters={filters} onChange={setFilters} visible={visible.length} total={events.length} />
   </div>;
 }
