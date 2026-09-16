@@ -17,7 +17,7 @@ summary: "The Jedi Order relocate to the ancient Dawn Temple on Spintir"
 locations: [Dawn Temple on Spintir]
 characters: []
 relatedEvents: [Destruction of Ossus]
-draft: true
+draft: false
 demo: false
 ---
 
