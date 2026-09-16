@@ -33,6 +33,9 @@ jobs:
       - name: Check types and content
         run: npm run check
 
+      - name: Check submission form and content references
+        run: npm run lore:check
+
       - name: Test chronology and timeline layout
         run: npm test
 

@@ -14,6 +14,16 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm run lore:check
       - run: npm run check
       - run: npm test
       - run: npm run build
+        env:
+          LORE_REVIEW_PREVIEWS: '1'
+      - name: Upload browser-ready event previews
+        uses: actions/upload-artifact@v7
+        with:
+          name: lore-review-previews
+          path: dist/review-preview/
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,86 @@
+name: Check and prepare lore submissions
+on:
+  issues:
+    types: [opened, edited, reopened]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Open lore issue number to prepare after editorial approval
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: lore-submission-${{ github.event.issue.number || inputs.issue_number || github.run_id }}
+  cancel-in-progress: false
+jobs:
+  submission:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Check submission and authorize preparation
+        id: stage
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { pathToFileURL } = await import('node:url');
+            const { resolve } = await import('node:path');
+            const { stage } = await import(pathToFileURL(resolve('scripts/lore-github.mjs')).href);
+            await stage({ github, context, core });
+      - name: Check prepared content and generated reference
+        if: steps.stage.outputs.prepared == 'true'
+        run: npm run lore:check
+      - name: Check archive types
+        if: steps.stage.outputs.prepared == 'true'
+        run: npm run check
+      - name: Test archive and submission workflow
+        if: steps.stage.outputs.prepared == 'true'
+        run: npm test
+      - name: Build archive and standalone event previews
+        if: steps.stage.outputs.prepared == 'true'
+        run: npm run build
+        env:
+          LORE_REVIEW_PREVIEWS: '1'
+          ASTRO_TELEMETRY_DISABLED: '1'
+      - name: Upload browser-ready review previews
+        if: steps.stage.outputs.prepared == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: lore-review-previews
+          path: dist/review-preview/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Create or refresh reviewed draft pull request
+        if: steps.stage.outputs.prepared == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { pathToFileURL } = await import('node:url');
+            const { resolve } = await import('node:path');
+            const { publishDraft } = await import(pathToFileURL(resolve('scripts/lore-github.mjs')).href);
+            await publishDraft({ github, context, core });
+      - name: Report unsuccessful preparation
+        if: failure()
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { pathToFileURL } = await import('node:url');
+            const { resolve } = await import('node:path');
+            const { preparationFailed } = await import(pathToFileURL(resolve('scripts/lore-github.mjs')).href);
+            await preparationFailed({ github, context });

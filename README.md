@@ -36,7 +36,9 @@ The page and vertical touch scrolling remain available. Wheel input is consumed 
 
 ## Edit lore and imagery
 
-Contributors can use the [lore event form](https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml) to submit new events or corrections with dropdowns, text fields, and optional attachments. The website footer links to the same form. An issue is a proposal: a maintainer reviews it and prepares a pull request before anything appears on the website.
+Contributors can use the [lore event form](https://github.com/LxthalNix/the-known-galaxy/issues/new?template=lore-event.yml) to submit new events or corrections with dropdowns, text fields, and optional attachments. The form includes the current recorded locations, characters, published event references, and guidance for every metadata field. The website footer links to the same form. Automated feedback checks submissions; an editor comments `/prepare-lore` after reviewing the lore to generate a draft pull request with optimized main imagery and browser-ready previews. A human still reviews and merges before publication.
+
+See [Submission workflow](docs/SUBMISSION_WORKFLOW.md) for the one-time GitHub setting, progress labels, previews, and reviewer steps. [Content reference](docs/CONTENT_REFERENCE.md) explains all field choices and how new names are accepted. Run `npm run lore:sync` after manual content/configuration changes; CI checks the generated lists are current with `npm run lore:check`.
 
 See [Adding an event](docs/ADDING_AN_EVENT.md) for submission and maintainer instructions. Maintainers copy `templates/event.md` into `src/content/events/`, complete the metadata and article, and set `draft: false` after approval. Adding an event never requires editing a component.
 
