@@ -41,8 +41,6 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
   const terms = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
   const results = terms.length ? events.filter((event) => terms.every((term) => event.searchText.includes(term))).slice(0, 12) : [];
   const activeTheme = eras.find((era) => era.id === activeEra) ?? eras[0];
-  const firstEra = shownEras[0];
-  const lastEra = shownEras[shownEras.length - 1];
   const count = filterCount(filters);
   const maxScroll = Math.max(0, layout.width - viewport.width);
 
@@ -188,7 +186,7 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
     if (event.key === 'Enter' && results.length) { event.preventDefault(); selectEvent(results[Math.max(0, searchIndex)].slug); trackRef.current?.focus({ preventScroll: true }); }
   }
 
-  return <div className="archive-app" style={{ '--era-accent': activeTheme.theme.accent, '--atmosphere': activeTheme.theme.atmosphere, '--planet-color': activeTheme.theme.planet } as CSSProperties}>
+  return <div className="archive-app" style={{ '--era-accent': activeTheme.theme.accent } as CSSProperties}>
     <header className="site-header">
       <a className="brand" href={withBase('', base)} aria-label="The Known Galaxy archive home"><img src={withBase('images/branding/tkg-logo.png', base)} width="2299" height="894" alt="The Known Galaxy" /></a>
       <nav aria-label="Main navigation"><a href="#chronology" className="nav-active" aria-current="page">Timeline</a></nav>
@@ -201,9 +199,8 @@ export default function TimelineArchive({ events, base }: { events: LoreEvent[];
       </div>
     </header>
     <main id="main-content">
-      <section className="hero" aria-labelledby="hero-title"><div className="hero-world" aria-hidden="true" /><div className="hero-content"><p className="eyebrow"><span className="status-dot" />The galactic historical archive</p><h1 id="hero-title">A galaxy remembered.<br /><em>A history still unfolding.</em></h1><p>Explore the defining moments of The Known Galaxy.<br className="desktop-break" /> Trace the rise, the fall, and everything that follows.</p><a className="hero-link" href="#chronology">Explore the chronology<Icon name="right" /></a></div><div className="hero-coordinate" aria-hidden="true"><span>Known history</span><strong>{formatDate(firstEra.start.year, firstEra.start.calendar)} — {lastEra.end ? formatDate(lastEra.end.year, lastEra.end.calendar) : 'onward'}</strong><span>Alternate chronology / Galactic archive</span></div></section>
       <section id="chronology" className="chronology-section" aria-labelledby="chronology-title">
-        <div className="chronology-heading"><div><p className="eyebrow">Through the eras</p><h2 id="chronology-title">The threads of history</h2></div><div className="timeline-legend"><span><i className="jedi-dot" />◇ Jedi</span><span><i className="sith-dot" />◆ Sith</span><span><i className="both-dot" />Both</span></div></div>
+        <div className="chronology-heading"><div><p className="eyebrow">Through the eras</p><h1 id="chronology-title">The threads of history</h1></div><div className="timeline-legend"><span><i className="jedi-dot" />◇ Jedi</span><span><i className="sith-dot" />◆ Sith</span><span><i className="both-dot" />Both</span></div></div>
         <div className="era-navigation" aria-label="Jump to era" style={{ gridTemplateColumns: `repeat(${shownEras.length}, minmax(0, 1fr))` }}>{shownEras.map((era) => <button key={era.id} className={activeEra === era.id ? 'active-era' : ''} aria-current={activeEra === era.id ? 'true' : undefined} onClick={() => { const section = layout.sections.find((section) => section.id === era.id)!; moveTo(section.x + section.width / 2); }}><span>{era.name}</span><small>{formatDate(era.start.year, era.start.calendar)} — {era.end ? formatDate(era.end.year, era.end.calendar) : 'onward'}</small></button>)}</div>
         <div className="timeline-toolbar"><div><span className="era-indicator">{activeTheme.name}</span><span className="record-count" role="status">{visible.length} of {events.length} records</span></div><div className="timeline-controls"><button className="icon-button" aria-label="Previous timeline viewport" disabled={viewport.x < 1} onClick={() => trackRef.current?.scrollBy({ left: -viewport.width * .7, behavior: reducedMotion.current ? 'instant' : 'smooth' })}><Icon name="left" /></button><button className="icon-button" aria-label="Next timeline viewport" disabled={viewport.x >= maxScroll - 1} onClick={() => trackRef.current?.scrollBy({ left: viewport.width * .7, behavior: reducedMotion.current ? 'instant' : 'smooth' })}><Icon name="right" /></button></div></div>
         {count > 0 && <div className="active-filters">{filterGroups.flatMap((group) => filters[group.key].map((id) => <button key={`${group.key}-${id}`} onClick={() => setFilters({ ...filters, [group.key]: filters[group.key].filter((value) => value !== id) })} aria-label={`Remove ${group.options.find((option) => option.id === id)?.label} filter`}>{group.options.find((option) => option.id === id)?.label}<Icon name="close" /></button>))}<button className="clear-filters" onClick={() => setFilters(emptyFilters())}>Clear all</button></div>}
