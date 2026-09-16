@@ -1,24 +1,24 @@
-# Lore / chronology assumptions
+# Lore and chronology assumptions
 
-This file records implementation choices that come from the supplied lore-year sheet rather than inventing additional canon.
+The supplied master build specification governs version 1. The original foundation used 17–29 ABD for Hallowed Preparations and 30–40 ABD for Expansion; these have been corrected to the explicit specification below. No lore-year sheet was supplied in this task, so it is not treated as an additional authority.
 
-## Primary calendar
+## Primary calendar and eras
 
-The public timeline uses **BBD / ABD** as its main chronology.
+BBD / ABD is the public chronology, with 0 ABD as the origin.
 
-## Era boundaries
+| Era | Inclusive bounds |
+| --- | --- |
+| The Unfamiliar and Unknown | 31 BBD–20 BBD |
+| The Eminence | 19 BBD–1 BBD |
+| Exodus and Recovery | 0 ABD–16 ABD |
+| Hallowed Preparations | 17 ABD–28 ABD |
+| Era of Expansion | 29 ABD–40 ABD |
+| Future / To Be Determined | 41 ABD onward |
 
-The website follows the colour blocks in the supplied lore-year sheet:
-
-- The Unfamiliar and Unknown: 31 BBD - 20 BBD
-- The Eminence: 19 BBD - 1 BBD
-- Exodus and Recovery: 0 ABD - 16 ABD
-- Hallowed Preparations: 17 ABD - 29 ABD
-- Era of Expansion: 30 ABD - 40 ABD
-- To Be Determined: 41 ABD onward
-
-The sheet's prose notes describe themes and events that can conceptually overlap those colour boundaries. For implementation, the colour blocks are treated as the authoritative era ranges unless the lore team later supplies revised boundaries.
+Era moods and atmospheric visuals are interface treatments, not claims about specific unrecorded events. The neutral generated CSS world is illustrative and does not identify a canonical location.
 
 ## Canon gaps
 
-Where the source only gives a short event fact, the seed Markdown entry remains short. The website should not invent missing characters, battles, motives, political circumstances or outcomes merely to make an entry look complete.
+Only the five supplied canonical seed events are published. The original short articles remain intact. No additional characters, battles, motives, military units, or political circumstances have been invented. Related-event lists remain empty because no explicit canonical relationships were supplied; editors can add approved references later.
+
+The broader divergence near Darth Bane's death, approximately 1,000 BBY, is background context and is not assigned a BBD/ABD date or inserted as a new record. The current archive does not pretend to document the complete history before divergence. Demonstration records must use `demo: true` and are visibly labeled noncanonical. Drafts are excluded from the public site and search.

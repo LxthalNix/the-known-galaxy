@@ -1,84 +1,49 @@
 ---
 import { getCollection } from 'astro:content';
-import { eras } from '../data/eras';
-import { chronologyKey, formatDate } from '../utils/chronology';
+import TimelineArchive from '../components/timeline/TimelineArchive';
+import { compareEvents } from '../utils/chronology';
+import { withBase, contentWithBase } from '../utils/paths';
+import type { LoreEvent } from '../types/events';
 import '../styles/global.css';
 
-const events = (await getCollection('events'))
-  .filter((event) => !event.data.draft)
-  .sort((a, b) => chronologyKey(a.data.year, a.data.calendar) - chronologyKey(b.data.year, b.data.calendar));
+const entries = await getCollection('events', ({ data }) => !data.draft);
+const slugs = new Set<string>();
+for (const entry of entries) {
+  if (slugs.has(entry.data.slug)) throw new Error(`Duplicate event slug: ${entry.data.slug}`);
+  slugs.add(entry.data.slug);
+}
+for (const entry of entries) {
+  for (const related of entry.data.relatedEvents) {
+    if (!slugs.has(related) || related === entry.data.slug) throw new Error(`Invalid relatedEvents in ${entry.data.slug}: ${related}. References must identify another published event.`);
+  }
+}
+const base = import.meta.env.BASE_URL;
+const events: LoreEvent[] = entries.map((entry) => ({
+  ...entry.data,
+  html: contentWithBase(entry.rendered?.html ?? '', base),
+  searchText: [entry.data.title, entry.data.summary, ...entry.data.characters, ...entry.data.locations, ...entry.data.types, entry.body ?? ''].join(' ').toLocaleLowerCase(),
+})).sort(compareEvents);
+const canonical = new URL(withBase('', base), Astro.site);
+const description = 'Explore the defining moments of The Known Galaxy, an alternate Star Wars chronology. An interactive BBD / ABD lore archive for the Roblox community.';
 ---
-
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Explore the lore timeline of The Known Galaxy." />
-    <meta name="theme-color" content="#05070d" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#05080e" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="The Known Galaxy — Lore Archive" />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={withBase('favicon.svg', base)} />
     <title>The Known Galaxy — Lore Timeline</title>
   </head>
   <body>
-    <header class="site-header">
-      <div class="brand-mark" aria-hidden="true">TKG</div>
-      <div>
-        <p class="eyebrow">Galactic Archive</p>
-        <h1>The Known Galaxy</h1>
-      </div>
-      <span class="foundation-badge">Foundation build</span>
-    </header>
-
-    <main>
-      <section class="intro" aria-labelledby="intro-title">
-        <p class="eyebrow">BBD / ABD chronology</p>
-        <h2 id="intro-title">Lore timeline foundation</h2>
-        <p>
-          This temporary page confirms that the repository, content model and GitHub Pages build are wired correctly.
-          The finished interactive horizontal timeline will replace this scaffold.
-        </p>
-      </section>
-
-      <section class="timeline-shell" aria-labelledby="timeline-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Chronology</p>
-            <h2 id="timeline-title">Known events</h2>
-          </div>
-          <p>{events.length} canonical seed events</p>
-        </div>
-
-        <div class="timeline" tabindex="0" aria-label="Horizontally scrollable timeline">
-          <div class="timeline-line" aria-hidden="true"></div>
-          {events.map((event) => (
-            <article class:list={['event-card', event.data.factions.includes('jedi') && 'is-jedi', event.data.factions.includes('sith') && 'is-sith']}>
-              <p class="event-date">{formatDate(event.data.year, event.data.calendar)}</p>
-              <h3>{event.data.title}</h3>
-              <p>{event.data.summary}</p>
-              <div class="tags">
-                {event.data.factions.map((faction) => <span>{faction}</span>)}
-                <span>{event.data.importance}</span>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section class="eras" aria-labelledby="eras-title">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Structure</p>
-            <h2 id="eras-title">Configured eras</h2>
-          </div>
-        </div>
-        <div class="era-grid">
-          {eras.map((era) => (
-            <article>
-              <h3>{era.name}</h3>
-              <p>{era.mood}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-    </main>
+    <a class="skip-link" href="#main-content">Skip to archive</a>
+    <TimelineArchive events={events} base={base} client:load />
+    <noscript><section class="noscript-records"><h2>Known history</h2><p>Enable JavaScript for search, filters, and interactive record selection. The approved records are available below.</p>{events.map((event) => <article><h3>{event.year} {event.calendar} — {event.title}</h3><div set:html={event.html} /></article>)}</section></noscript>
   </body>
 </html>
