@@ -46,8 +46,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
 .site-header nav { display: flex; align-items: center; gap: 30px; height: 100%; font-size: 12px; }
 .site-header nav > a { display: flex; align-items: center; height: 100%; position: relative; }
 .nav-active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--timeline); }
-.future-nav { color: var(--text-soft); white-space: nowrap; }
-.future-nav small { font-size: 8px; text-transform: uppercase; margin-left: 3px; }
 .header-tools { margin-left: auto; display: flex; align-items: center; gap: 20px; }
 .search { display: flex; align-items: center; position: relative; gap: 10px; color: var(--text-muted); }
 .search input { width: 175px; background: transparent; border: none; color: var(--text-primary); padding: 12px 0; font-size: 12px; }
@@ -242,7 +240,6 @@ h1, h2, h3 { font-family: var(--display); font-weight: 400; }
 @media (max-width: 1100px) {
   .site-header { gap: 28px; }
   .site-header nav { gap: 22px; }
-  .future-nav { display: none; }
   .search input { width: 145px; }
   .hero-world { right: -8%; }
   .era-navigation button > span { font-size: 10px; }
