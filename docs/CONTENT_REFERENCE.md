@@ -26,6 +26,7 @@ A location is a named place involved in the event; a character is a named indivi
 Related events must come from this published record list. Paste one exact slug or full event link per line, never a display title. Do not refer to the event itself or to unpublished drafts. Do not infer a relationship just to populate the field.
 - [Creation of the KAA](https://lxthalnix.github.io/the-known-galaxy/#creation-of-the-kaa) — `creation-of-the-kaa`
 - [Destruction of the Grand Jedi Library on Ossus](https://lxthalnix.github.io/the-known-galaxy/#destruction-of-ossus-library) — `destruction-of-ossus-library`
+- [Jedi Escape to the Dawn Temple on Spintir](https://lxthalnix.github.io/the-known-galaxy/#jedi-escape-to-the-dawn-temple-on-spintir) — `jedi-escape-to-the-dawn-temple-on-spintir`
 - [The Purge of Dathomir](https://lxthalnix.github.io/the-known-galaxy/#purge-of-dathomir) — `purge-of-dathomir`
 - [Rise of Darth Cronos](https://lxthalnix.github.io/the-known-galaxy/#rise-of-darth-cronos) — `rise-of-darth-cronos`
 - [Rise of Darth Validus](https://lxthalnix.github.io/the-known-galaxy/#rise-of-darth-validus) — `rise-of-darth-validus`
