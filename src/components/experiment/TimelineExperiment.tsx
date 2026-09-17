@@ -605,13 +605,16 @@ export default function TimelineExperiment({ events: canonicalEvents, fixtures, 
 
         <p id="timeline-help" className="sr-only">Scroll or drag horizontally to explore. On touch devices, swipe. Use Left and Right arrows, Home and End. Tab to an event and press Enter to open its record.</p>
 
+        <div className="timeline-surface">
+          {/* Keep viewport decoration outside native scrolling; React scroll updates can trail it. */}
+          <span className="perspective-atmosphere" aria-hidden="true" />
         <div ref={trackRef} className="timeline-viewport" tabIndex={0} role="region" aria-label="Interactive lore timeline" aria-describedby="timeline-help" onKeyDown={timelineKey} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={endDrag} onPointerCancel={endDrag} onLostPointerCapture={() => { dragging.current = null; trackRef.current?.classList.remove('is-dragging'); }} onPointerLeave={(event) => { if (!event.currentTarget.hasPointerCapture(event.pointerId)) dragging.current = null; }} onClickCapture={(event) => { if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false; } }}>
 
           <div className="timeline-track" style={{ width: layout.width, height: layout.height }}>
 
             {viewport.width > 1 && visible.length > 0 && !sliceHasRecords && <p className="viewport-empty" style={{left: viewport.x, width: Math.min(viewport.width, layout.width)}}>No approved records in this part of the timeline. Use Latest record to return to recorded history.</p>}
 
-            <span className="perspective-atmosphere" aria-hidden="true" style={{ left: viewport.x, width: Math.min(viewport.width, layout.width) }} />
+
 
             <div className="chapter-atmospheres" aria-hidden="true">
 
@@ -659,6 +662,8 @@ export default function TimelineExperiment({ events: canonicalEvents, fixtures, 
             {layout.events.map(item => { const {event} = item; if (!visibleIds.has(event.slug)) return null; const account = resolveAccount(event, perspective, accounts); const cardImage = event.image ? event : event.gallery?.[0] ? {...event, image:event.gallery[0].image, imageAlt:event.gallery[0].alt} : undefined; const quiet = perspective !== 'neutral' && !event.factions.includes(perspective); return <button key={event.slug} ref={element => { if (element) nodeRefs.current.set(event.slug, element); else nodeRefs.current.delete(event.slug); }} data-event={event.slug} data-anchor-x={item.x} data-row={item.row} title={`${account.title} · ${event.importance[0].toUpperCase() + event.importance.slice(1)} event`} className={`chronicle-event importance-${event.importance} faction-${event.factions.length > 1 ? 'both' : event.factions[0]} ${selectedSlug === event.slug ? 'selected' : ''} ${selected?.relatedEvents.includes(event.slug) ? 'related' : ''} ${quiet ? 'quiet-event' : ''}`} style={{ left: item.labelX - item.width / 2, top: item.y, width: item.width, height: item.height }} aria-pressed={selectedSlug === event.slug} aria-label={`${formatDate(event.year, event.calendar)}: ${account.title}, ${event.importance} event${item.slots > 1 ? `, event ${item.slot + 1} of ${item.slots}` : ''}${event.demo ? ', demonstration, noncanonical' : ''}`} onClick={() => selectEvent(event.slug)}><span className="chronicle-label" onDragStart={e => e.preventDefault()}><span className="event-date">{formatDate(event.year, event.calendar)}</span>{cardImage && event.importance === 'major' && <EventImage event={cardImage} base={base} compact />}<span className="event-title">{account.title}</span><FactionIdentity factions={event.factions} base={base} />{selected?.relatedEvents.includes(event.slug) && <span className="related-indicator">Related to open record</span>}{event.demo && <span className="fixture-marker">Test fixture</span>}</span></button>; })}
 
           </div>
+
+        </div>
 
         </div>
 

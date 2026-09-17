@@ -55,8 +55,9 @@ html:has(.experiment.concept-a) { overflow-x: clip; }
 .experiment .record-count { font-size: 12px; }
 .experiment .timeline-toolbar { min-height: 68px; }
 .experiment .icon-button { border-color: #344356; }
-.experiment .timeline-viewport { background-color: #080c12; border-color: #26313d; background-image: radial-gradient(circle at 28px 47px, #bfcfdf76 .7px, transparent 1.1px), radial-gradient(circle at 150px 210px, #8498b559 .65px, transparent 1.1px), radial-gradient(circle at 321px 114px, #b9c9db5e .9px, transparent 1.3px); background-size: 563px 409px, 827px 617px, 997px 743px; }
-.perspective-atmosphere { position: absolute; inset-block: 0; pointer-events: none; background: radial-gradient(ellipse at 75% 50%, rgba(var(--atmosphere), .16), transparent 65%); transition: background-color .25s; }
+.timeline-surface { position: relative; isolation: isolate; min-width: 0; background-color: #080c12; }
+.experiment .timeline-viewport { background-color: transparent; border-color: #26313d; background-image: radial-gradient(circle at 28px 47px, #bfcfdf76 .7px, transparent 1.1px), radial-gradient(circle at 150px 210px, #8498b559 .65px, transparent 1.1px), radial-gradient(circle at 321px 114px, #b9c9db5e .9px, transparent 1.3px); background-size: 563px 409px, 827px 617px, 997px 743px; }
+.perspective-atmosphere { position: absolute; inset: 0; overflow: hidden; pointer-events: none; background: radial-gradient(ellipse at 75% 50%, rgba(var(--atmosphere), .16), transparent 65%); transition: background-color .25s; }
 .chapter-atmospheres { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .chapter-atmosphere { position: absolute; inset-block: 0; pointer-events: none; background-position: center; background-size: cover; opacity: .35; -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--chapter-feather), #000 calc(100% - var(--chapter-feather)), transparent); mask-image: linear-gradient(to right, transparent, #000 var(--chapter-feather), #000 calc(100% - var(--chapter-feather)), transparent); }
 .concept-b .chapter-atmosphere { opacity: .8; }
@@ -177,7 +178,8 @@ html:has(.experiment.concept-a) { overflow-x: clip; }
 .concept-b .chronology-heading h1 { font-size: 38px; }
 .concept-b .era-navigation { border-top: 0; border-bottom-color: #303c49; }
 .concept-b .era-navigation button + button::before { display: none; }
-.concept-b .timeline-viewport { border: 0; background-color: #05090e; background-image: radial-gradient(circle at 41px 109px, #e0e9f09c .8px, transparent 1.5px), radial-gradient(circle at 293px 58px, #aac4d278 .6px, transparent 1px), radial-gradient(circle at 469px 320px, #d6e2ee55 1px, transparent 1.5px), radial-gradient(circle at 151px 387px, #adb9ca46 .55px, transparent 1px); background-size: 691px 487px, 457px 631px, 1297px 733px, 827px 571px; }
+.concept-b .timeline-surface { background-color: #05090e; }
+.concept-b .timeline-viewport { border: 0; background-color: transparent; background-image: radial-gradient(circle at 41px 109px, #e0e9f09c .8px, transparent 1.5px), radial-gradient(circle at 293px 58px, #aac4d278 .6px, transparent 1px), radial-gradient(circle at 469px 320px, #d6e2ee55 1px, transparent 1.5px), radial-gradient(circle at 151px 387px, #adb9ca46 .55px, transparent 1px); background-size: 691px 487px, 457px 631px, 1297px 733px, 827px 571px; }
 .concept-b .era-watermark { top: 24px; left: 32px; font-size: 38px; opacity: .18; max-width: 580px; line-height: 1.1; }
 .concept-b .unrecorded-era { opacity: .6; font-size: 14px; }
 .concept-b .chronology-axis { background: #a1b8ca73; }
