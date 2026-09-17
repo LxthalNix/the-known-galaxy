@@ -22,3 +22,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Gallery derivatives are generated before each build
+public/images/gallery-thumbnails/
+public/images/experiment/thumbnails/

@@ -1,10 +1,10 @@
 # Lore and chronology assumptions
 
-The supplied master build specification governs version 1. The original foundation used 17–29 ABD for Hallowed Preparations and 30–40 ABD for Expansion; these have been corrected to the explicit specification below. No lore-year sheet was supplied in this task, so it is not treated as an additional authority.
+The original specification established the lore and era boundaries below. Later user-approved changes establish the Concept A presentation, dual faction calendars, uniform spacing and a real-month calendar anchor. No additional lore-year sheet was supplied, and no unrecorded history is invented.
 
 ## Primary calendar and eras
 
-BBD / ABD is the public chronology, with 0 ABD as the origin.
+BBD / ABD is the central stored chronology, with the Battle of Dathomir as 0 ABD. Jedi perspective displays BDO / ADO, with the Destruction of Ossus at 16 ABD as 0 ADO. Both calendars represent the same events. September 2026 is 37 ABD; each subsequent UTC calendar month advances one canonical year regardless of its number of days.
 
 | Era | Inclusive bounds |
 | --- | --- |
@@ -13,12 +13,12 @@ BBD / ABD is the public chronology, with 0 ABD as the origin.
 | Exodus and Recovery | 0 ABD–16 ABD |
 | Hallowed Preparations | 17 ABD–28 ABD |
 | Era of Expansion | 29 ABD–40 ABD |
-| Future / To Be Determined | 41 ABD onward |
+| Uncharted Territory | 41 ABD onward |
 
-Era moods and atmospheric visuals are interface treatments, not claims about specific unrecorded events. The neutral generated CSS world is illustrative and does not identify a canonical location.
+Era moods and atmospheric visuals are interface treatments, not claims about specific unrecorded events. The future timeline initially extends through 65 ABD and grows as needed; its era remains open-ended. Empty stretches retain the same year scale.
 
 ## Canon gaps
 
-Only the five supplied canonical seed events are published. The original short articles remain intact. No additional characters, battles, motives, military units, or political circumstances have been invented. Related-event lists remain empty because no explicit canonical relationships were supplied; editors can add approved references later.
+Six approved canonical records are published, including the submitted Jedi escape to Spintir. The original articles remain intact. Exile of Master Tiberius, Party in the Dawn Temple and Bombing of the Temple are preserved as drafts at the user's direction because their articles were placeholders. No additional characters, battles, motives, military units or political circumstances have been invented. Editors may add approved related-event references later.
 
 The broader divergence near Darth Bane's death, approximately 1,000 BBY, is background context and is not assigned a BBD/ABD date or inserted as a new record. The current archive does not pretend to document the complete history before divergence. Demonstration records must use `demo: true` and are visibly labeled noncanonical. Drafts are excluded from the public site and search.

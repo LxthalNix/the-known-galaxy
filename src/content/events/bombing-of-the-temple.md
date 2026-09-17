@@ -18,7 +18,7 @@ locations:
 characters: []
 relatedEvents:
   - party-in-the-dawn-temple
-draft: false
+draft: true
 demo: false
 submissionIssue: 15
 submissionBodySha: 8184f5e194318ef43d8631ceffe8259d5126ab8345cebcc6383b789787891bd0

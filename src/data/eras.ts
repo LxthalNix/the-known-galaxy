@@ -41,7 +41,7 @@ export const eras = [
   },
   {
     id: 'to-be-determined',
-    name: 'To Be Determined',
+    name: 'Uncharted Territory',
     start: { year: 41, calendar: 'ABD' as const },
     end: null,
     mood: 'Future chronology not yet written.',

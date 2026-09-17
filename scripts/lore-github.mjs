@@ -1,5 +1,5 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { loadArchive, parseEventFile, site } from './lore-form.mjs';
+import { loadArchive, loadPerspectiveAccounts, parseEventFile, site } from './lore-form.mjs';
 import { bodySha, validateSubmission, prepareFiles } from './lore-submission.mjs';
 
 const marker = '<!-- known-galaxy-lore-feedback -->';
@@ -36,7 +36,7 @@ export async function report(github, context, number, text) {
 
 export function feedback(result) {
   if (!result.valid) return `**Submission needs information**\n\n${result.errors.map((s) => `- ${safeText(s)}`).join('\n')}\n\nEdit the issue body to correct these fields. If this issue used the older form, copy your work into a new issue using the current template. Checks run again when the body changes.`;
-  return `**Technical submission checks passed — awaiting editorial review**\n\nThe event date, metadata choices, related references, and required information are valid. This does not establish canon or verify image permission.${result.warnings.length ? `\n\n${result.warnings.map((s) => `- ${safeText(s)}`).join('\n')}` : ''}\n\nAn editor with repository write access should verify the sources, new names, article, and image permission, then comment \`/prepare-lore\` to prepare a draft pull request. Main images are decoded and checked during preparation. No content is published automatically.`;
+  return `**Technical submission checks passed — awaiting editorial review**\n\nThe event date, metadata choices, related references, and required information are valid. This does not establish canon or verify image permission.${result.dateSummary ? `\n\n**Calendar conversion:** ${safeText(result.dateSummary)}` : ''}${result.warnings.length ? `\n\n${result.warnings.map((s) => `- ${safeText(s)}`).join('\n')}` : ''}\n\nAn editor with repository write access should verify the sources, new names, article, and image permission, then comment \`/prepare-lore\` to prepare a draft pull request. Main images are decoded and checked during preparation. No content is published automatically.`;
 }
 
 export async function editorAllowed(github, context, actor) {
@@ -60,7 +60,7 @@ export async function stage({ github, context, core, root = '.', download }) {
   if ((dispatch || command) && !await editorAllowed(github, context, dispatch ? context.actor : context.payload.comment.user.login)) {
     core.notice('Draft preparation ignored: the requester does not have repository write access.'); return;
   }
-  const records = await loadArchive(root), result = validateSubmission(issue, records);
+  const records = await loadArchive(root), result = validateSubmission(issue, records, await loadPerspectiveAccounts(root));
   await setStatus(github, context, number, result.valid ? 'lore:in-review' : 'lore:needs-information');
   await report(github, context, number, feedback(result));
   if (!result.valid || (!dispatch && !command)) return;
