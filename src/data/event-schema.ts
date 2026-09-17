@@ -3,6 +3,7 @@ import { eras, type EraId } from './eras.ts';
 import { chronologyKey } from '../utils/chronology.ts';
 import { eventTypes } from './eventTypes.ts';
 import { factions } from './factions.ts';
+import { gallerySchema } from './perspective-schema.ts';
 
 export const eventSchema = z.object({
     title: z.string().trim().min(1),
@@ -17,6 +18,7 @@ export const eventSchema = z.object({
     summary: z.string().trim().min(1),
     image: z.string().regex(/^\/?images\/[a-zA-Z0-9_./-]+$/, 'Use a local images/ path.').optional(),
     imageAlt: z.string().optional(),
+    gallery: gallerySchema.optional(),
     locations: z.array(z.string()).default([]),
     characters: z.array(z.string()).default([]),
     relatedEvents: z.array(z.string()).default([]),

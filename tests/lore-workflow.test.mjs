@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, cp, readFile } from 'node:fs/promises';
+import { mkdtemp, rm, cp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import YAML from 'yaml';
-import { loadArchive, formDefinition, generatedFiles, referenceData, parseEventFile, syncForm } from '../scripts/lore-form.mjs';
+import { loadArchive, loadPerspectiveAccounts, formDefinition, generatedFiles, referenceData, parseEventFile, syncForm, extendedFormField } from '../scripts/lore-form.mjs';
 import { bodySha, validateSubmission, downloadMainImage, prepareFiles, eventReference } from '../scripts/lore-submission.mjs';
-import { stage, publishDraft, trackPublication } from '../scripts/lore-github.mjs';
+import { stage, publishDraft, trackPublication, feedback } from '../scripts/lore-github.mjs';
 import { safeLoreHtml } from '../src/utils/safe-html.ts';
 
 // Keep workflow fixtures independent of newly submitted or edited production lore.
@@ -43,6 +43,81 @@ test('new submission accepts the complete current form and CRLF issue bodies', (
   assert.equal(result.data.demo, false);
 });
 
+test('older complete issues retain compatibility when gallery and account extensions are absent', () => {
+  const input = issue();
+  const legacyFields = formDefinition(records).body.filter(field => field.id && !extendedFormField(field.id));
+  input.body = legacyFields.map(field => `### ${field.attributes.label}\n\n${defaults[field.id] || '_No response_'}`).join('\n\n');
+  const result = validateSubmission(input, records);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.deepEqual(result.galleryUploads, []);
+  assert.deepEqual(result.accountChanges, []);
+  const oldEra = validateSubmission(issue({ year: '70', era: 'To Be Determined (41 ABD–onward)' }), records);
+  assert.equal(oldEra.valid, true, JSON.stringify(oldEra.errors));
+  assert.equal(oldEra.data.era, 'to-be-determined');
+});
+
+const galleryUrl = 'https://github.com/user-attachments/assets/12345678-1234-1234-1234-123456789abc';
+test('gallery preparation imports ordered imagery with alt/captions and separate written accounts', async t => {
+  const root = await sandbox(t);
+  const input = issue({
+    'gallery-action': 'Add or replace gallery',
+    'gallery-1-image': `![Upload](${galleryUrl})`, 'gallery-1-alt': 'First synthetic image', 'gallery-1-caption': 'First caption',
+    'gallery-3-image': 'https://github.com/user-attachments/assets/12345678-1234-1234-1234-123456789abd', 'gallery-3-alt': 'Second synthetic image',
+    'gallery-credit': 'Both test images have test-only permission evidence.',
+    'jedi-account-action': 'Add or replace account', 'jedi-account-title': 'A Jedi account', 'jedi-account-article': 'Test-only Jedi narrative.',
+    'sith-account-action': 'Add or replace account', 'sith-account-article': 'Test-only Sith narrative.',
+  });
+  const result = validateSubmission(input, records);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  const calls = [];
+  const bytes = await sharp({ create: { width: 16, height: 16, channels: 3, background: '#456789' } }).webp().toBuffer();
+  const files = await prepareFiles(result, records, root, async url => { calls.push(url); return bytes; });
+  assert.equal(calls.length, 2);
+  const saved = (await loadArchive(root)).find(record => record.data.slug === result.data.slug);
+  assert.deepEqual(saved.data.gallery.map(image => image.alt), ['First synthetic image', 'Second synthetic image']);
+  assert.equal(saved.data.gallery[0].caption, 'First caption');
+  assert.equal(saved.data.gallery[1].caption, undefined);
+  assert.ok(files.some(file => file.binary && file.path.endsWith('-gallery-3.webp')));
+  const accounts = await loadPerspectiveAccounts(root);
+  assert.equal(accounts.length, 2);
+  assert.ok(accounts.every(account => account.data.event === saved.data.slug && !('year' in account.data)));
+  assert.equal(accounts.find(account => account.data.perspective === 'sith').data.title, undefined);
+  await syncForm(root, true);
+});
+
+test('gallery validation requires per-image alt and permissions, and rejects accidental replacements', () => {
+  for (const overrides of [
+    { 'gallery-1-image': galleryUrl },
+    { 'gallery-action': 'Add or replace gallery', 'gallery-1-image': galleryUrl, 'gallery-credit': 'Permission' },
+    { 'gallery-action': 'Add or replace gallery', 'gallery-1-image': galleryUrl, 'gallery-1-alt': 'Test' },
+    { 'gallery-action': 'Add or replace gallery', 'gallery-1-image': 'https://example.test/image.png', 'gallery-1-alt': 'Test', 'gallery-credit': 'Permission' },
+    { 'jedi-account-article': 'Unrequested replacement' },
+    { 'sith-account-action': 'Add or replace account' },
+  ]) assert.equal(validateSubmission(issue(overrides), records).valid, false, JSON.stringify(overrides));
+});
+
+test('corrections keep galleries and faction narratives, while explicit removal preserves a draft source', async t => {
+  const root = await sandbox(t);
+  const original = records.find(record => record.data.slug === 'purge-of-dathomir');
+  const archive = records.map(record => record === original ? { ...record, data: { ...record.data, gallery: [{ image: '/images/test.webp', alt: 'Retained gallery image' }] } } : record);
+  const account = { path: 'src/content/perspectives/custom-jedi.md', data: { event: original.data.slug, perspective: 'jedi', draft: false, title: 'Retained title', terminology: { Opponent: 'A test glossary entry' } }, body: 'Preserved approved narrative.' };
+  const fields = { 'request-kind': 'Update an existing event', 'existing-event': original.data.slug };
+  const kept = validateSubmission(issue(fields), archive, [account]);
+  assert.deepEqual(kept.data.gallery, archive.find(record => record.data.slug === original.data.slug).data.gallery);
+  assert.deepEqual(kept.accountChanges, []);
+  const rewritten = validateSubmission(issue({ ...fields, 'jedi-account-action': 'Add or replace account', 'jedi-account-article': 'Updated test-only narrative.' }), archive, [account]);
+  assert.deepEqual(rewritten.accountChanges[0].data.terminology, account.data.terminology);
+  assert.equal(rewritten.accountChanges[0].data.title, undefined, 'Blank override uses the canonical title');
+  const removed = validateSubmission(issue({ ...fields, 'gallery-action': 'Remove existing gallery', 'jedi-account-action': 'Remove existing account' }), archive, [account]);
+  assert.equal(removed.valid, true, JSON.stringify(removed.errors));
+  assert.equal(removed.data.gallery, undefined);
+  await prepareFiles(removed, archive, root);
+  const saved = await loadPerspectiveAccounts(root);
+  assert.equal(saved[0].path, account.path);
+  assert.equal(saved[0].data.draft, true);
+  assert.equal(saved[0].body, account.body);
+});
+
 test('invalid numeric dates and era mismatches give actionable feedback', () => {
   for (const overrides of [{ year: '-1' }, { year: '17 ABD' }, { year: '0', calendar: 'BBD' }, { year: '29' }]) {
     const result = validateSubmission(issue(overrides), records);
@@ -51,11 +126,59 @@ test('invalid numeric dates and era mismatches give actionable feedback', () => 
   }
 });
 
+test('either submission calendar normalizes before era checks and reports the conversion', () => {
+  for (const [year,calendar,expectedYear,expectedCalendar,era] of [
+    ['0','ADO',16,'ABD','Exodus and Recovery (0 ABD–16 ABD)'],
+    ['16','BDO',0,'ABD','Exodus and Recovery (0 ABD–16 ABD)'],
+    ['1','ADO',17,'ABD','Hallowed Preparations (17 ABD–28 ABD)'],
+    ['17','BDO',1,'BBD','The Eminence (19 BBD–1 BBD)'],
+    ['21','ADO',37,'ABD','Era of Expansion (29 ABD–40 ABD)'],
+  ]) {
+    const result=validateSubmission(issue({year,calendar,era,'timeline-order':'3'}),records);
+    assert.equal(result.valid,true,JSON.stringify(result.errors));
+    assert.equal(result.data.year,expectedYear); assert.equal(result.data.calendar,expectedCalendar);
+    assert.equal(result.data.timelineOrder,3);
+    assert.ok(feedback(result).includes(`canonical date ${expectedYear} ${expectedCalendar}`));
+  }
+  assert.equal(validateSubmission(issue({year:'0',calendar:'BDO'}),records).valid,false);
+  assert.equal(validateSubmission(issue({year:'1',calendar:'ADO'}),records).valid,false);
+  assert.equal(validateSubmission(issue({year:'48',calendar:'BDO',era:'The Unfamiliar and Unknown (31 BBD–20 BBD)'}),records).valid,false);
+});
+
+test('Jedi-calendar corrections preserve links and prevent accidental epoch drift', () => {
+  const result=validateSubmission(issue({'request-kind':'Update an existing event','existing-event':'destruction-of-ossus-library','event-title':'Updated Ossus title',year:'0',calendar:'ADO'}),records);
+  assert.equal(result.valid,true,JSON.stringify(result.errors));
+  assert.equal(result.data.slug,'destruction-of-ossus-library');
+  assert.equal(result.data.year,16); assert.equal(result.data.calendar,'ABD');
+  const drift=validateSubmission(issue({'request-kind':'Update an existing event','existing-event':'destruction-of-ossus-library',year:'1',calendar:'ADO',era:'Hallowed Preparations (17 ABD–28 ABD)'}),records);
+  assert.ok(drift.errors.some(error=>error.includes('calendar origin')));
+});
+
+test('preparation writes only one normalized date for a Jedi-calendar submission', async t => {
+  const root=await sandbox(t);
+  const result=validateSubmission(issue({year:'1',calendar:'ADO',era:'Hallowed Preparations (17 ABD–28 ABD)'}),records);
+  assert.equal(result.valid,true,JSON.stringify(result.errors));
+  await prepareFiles(result,records,root);
+  const saved=(await loadArchive(root)).find(record=>record.data.slug===result.data.slug);
+  assert.equal(saved.data.year,17); assert.equal(saved.data.calendar,'ABD');
+  await syncForm(root,true);
+});
+
+test('manual archive changes cannot silently desynchronize the Ossus epoch', async t => {
+  const root=await sandbox(t);
+  const original=records.find(record=>record.data.slug==='destruction-of-ossus-library');
+  const moved={...original.data,year:15};
+  await writeFile(join(root,original.path),`---\n${YAML.stringify(moved)}---\n\n${original.body}\n`);
+  await assert.rejects(loadArchive(root),/shared calendar origin/);
+});
+
 test('related records accept exact slugs and archive links, reject titles, self references and drafts', () => {
   assert.equal(validateSubmission(issue({ 'related-events': 'destruction-of-ossus-library\nhttps://lxthalnix.github.io/the-known-galaxy/#purge-of-dathomir' }), records).valid, true);
   for (const ref of ['Destruction of Ossus', 'workflow-test-fixture', 'missing-event', 'https://example.com/#purge-of-dathomir']) assert.equal(validateSubmission(issue({ 'related-events': ref }), records).valid, false);
   const draft = { ...records[0], data: { ...records[0].data, slug: 'draft-record', draft: true } };
   assert.equal(validateSubmission(issue({ 'related-events': 'draft-record' }), [...records, draft]).valid, false);
+  const demo = { ...records[0], data: { ...records[0].data, slug: 'demo-record', demo: true } };
+  assert.equal(validateSubmission(issue({ 'related-events': 'demo-record' }), [...records, demo]).valid, false);
   assert.equal(eventReference('https://lxthalnix.github.io/the-known-galaxy/#purge-of-dathomir'), 'purge-of-dathomir');
 });
 

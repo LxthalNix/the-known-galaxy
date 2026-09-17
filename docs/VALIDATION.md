@@ -1,4 +1,16 @@
-# Version 1 validation
+# Validation record
+
+## Local Concept A candidate — 17 September 2026
+
+- All 54 automated tests pass, including both calendars, month boundaries, uniform chronology, image/gallery cover geometry, four/five-event schedules, collisions, submission compatibility, ordered gallery imports, faction account keep/replace/removal, stale authorization guards and publication tracking.
+- Astro check reports zero errors, warnings and hints across 54 files; the generated form/reference check passes.
+- An isolated first build started without any generated gallery derivatives. Both thumbnails appeared in dist and all stylesheet assets resolved. Production output excluded the experiment/comparison routes and the experiment image/font directories.
+- The isolated offline preview includes embedded imagery/fonts, both calendar dates, captions and the optional Jedi article. The synthetic audit record exists only under the ignored audit folder, outside the working content collection.
+- The five-event preview contains 145 explicitly synthetic records across 37–65 ABD plus six approved records. Its canvas measures 598px with distinct cards and no collision in the tested schedule. Greater density can still require more rows; empty years remain uniformly spaced.
+- Browser checks cover the root candidate, 390px mobile reflow, current/latest controls, Jedi date search and metadata, no duplicate marker Tab stops, photo containment and gallery navigation. No page overflow was observed. Footer content remains about 64px.
+- GitHub and the deployed website are unchanged. Native browser zoom, Safari/iOS, a physical touch device and screen-reader behavior remain manual review items before deployment. The source branch must be applied to current main deliberately rather than copied wholesale.
+
+## Historical foundation validation
 
 Verified on 16 September 2026 with Node 24.19.0. CI uses Node 22 (minimum supported version 22.12).
 

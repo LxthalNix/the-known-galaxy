@@ -19,18 +19,14 @@ There is no separate authoritative location or character catalogue supplied to t
 **Currently recorded characters**
 - Darth Cronos
 - Darth Validus
-- Grandmaster Tiberius
 
 A location is a named place involved in the event; a character is a named individual involved in it. Factions and organizations belong in the article or faction field, not the character list. These lists are generated from `src/content/events/`; editors run `npm run lore:sync` after content changes.
 
 ## Existing records for updates and related events
 Related events must come from this published record list. Paste one exact slug or full event link per line, never a display title. Do not refer to the event itself or to unpublished drafts. Do not infer a relationship just to populate the field.
-- [Bombing of the Temple!](https://lxthalnix.github.io/the-known-galaxy/#bombing-of-the-temple) — `bombing-of-the-temple`
 - [Creation of the KAA](https://lxthalnix.github.io/the-known-galaxy/#creation-of-the-kaa) — `creation-of-the-kaa`
 - [Destruction of the Grand Jedi Library on Ossus](https://lxthalnix.github.io/the-known-galaxy/#destruction-of-ossus-library) — `destruction-of-ossus-library`
-- [Exile of Master Tiberius](https://lxthalnix.github.io/the-known-galaxy/#exile-of-master-tiberius) — `exile-of-master-tiberius`
 - [Jedi Escape to the Dawn Temple on Spintir](https://lxthalnix.github.io/the-known-galaxy/#jedi-escape-to-the-dawn-temple-on-spintir) — `jedi-escape-to-the-dawn-temple-on-spintir`
-- [Party in the Dawn Temple](https://lxthalnix.github.io/the-known-galaxy/#party-in-the-dawn-temple) — `party-in-the-dawn-temple`
 - [The Purge of Dathomir](https://lxthalnix.github.io/the-known-galaxy/#purge-of-dathomir) — `purge-of-dathomir`
 - [Rise of Darth Cronos](https://lxthalnix.github.io/the-known-galaxy/#rise-of-darth-cronos) — `rise-of-darth-cronos`
 - [Rise of Darth Validus](https://lxthalnix.github.io/the-known-galaxy/#rise-of-darth-validus) — `rise-of-darth-validus`
@@ -51,21 +47,39 @@ Required for updates; leave blank for new events. Choose a published record list
 
 The proposed public title, up to 120 characters. For a new event the workflow generates a unique lowercase, hyphenated slug from this title; titles matching existing events require an update request.
 
+## Two calendars, one chronology
+Choose the calendar you know; do not submit the same event twice. BBD/ABD counts before/after the Battle of Dathomir. BDO/ADO counts before/after the Destruction of Ossus. Ossus is 16 ABD = 0 ADO; the Battle of Dathomir is 0 ABD = 16 BDO. Both advance by one canonical year per real calendar month, regardless of month length.
+
+The workflow automatically converts either calendar to the shared BBD/ABD event metadata before checking the era and same-year order. The website's Jedi view derives BDO/ADO; Sith and Neutral use BBD/ABD. Only one date is stored, so they cannot drift apart. For example, 1 ADO = 17 ABD and 1 BDO = 15 ABD. Origins use the after-calendar: 0 ABD or 0 ADO, never 0 BBD or 0 BDO.
+
+**Era conversion reference** (inclusive endpoints; the dropdown retains Dathomir dates for compatibility):
+
+| Era | Dathomir calendar | Ossus calendar |
+| --- | --- | --- |
+| The Unfamiliar and Unknown | 31 BBD to 20 BBD | 47 BDO to 36 BDO |
+| The Eminence | 19 BBD to 1 BBD | 35 BDO to 17 BDO |
+| Exodus and Recovery | 0 ABD to 16 ABD | 16 BDO to 0 ADO |
+| Hallowed Preparations | 17 ABD to 28 ABD | 1 ADO to 12 ADO |
+| Era of Expansion | 29 ABD to 40 ABD | 13 ADO to 24 ADO |
+| Uncharted Territory | 41 ABD to onward | 25 ADO to onward |
+
 ## Year
 
-Whole number of zero or greater, without a minus sign, BBD, ABD, or BBY. Choose the calendar separately. The Battle of Dathomir is 0 ABD; 0 BBD is invalid.
+Whole number of zero or greater, without a minus sign or calendar suffix. Choose BBD, ABD, BDO, or ADO separately. Enter 0 ABD for Dathomir or 0 ADO for Ossus; 0 BBD and 0 BDO are invalid.
 
 ## Calendar
 
-BBD = Before the Battle of Dathomir; ABD = After the Battle of Dathomir. Earlier BBD years run toward 0 ABD. BBY/ABY are background context and are not accepted as event dates.
+BBD/ABD = Before/After the Battle of Dathomir (Sith calendar). BDO/ADO = Before/After the Destruction of Ossus (Jedi calendar). Either choice is converted automatically to the same canonical date. BBY/ABY are not accepted.
 
 Allowed choices:
 - BBD
 - ABD
+- BDO
+- ADO
 
 ## Era
 
-Choose the range containing the year and calendar. Both endpoints are inclusive. Options come from src/data/eras.ts; automated checks reject mismatches. Dates before 31 BBD require an editorial chronology change first.
+Choose the era containing the converted canonical date. The dropdown displays Dathomir dates; the table above gives each range in the Jedi calendar. Both endpoints are inclusive. Options come from src/data/eras.ts; checks convert first and reject mismatches. Dates before 31 BBD / 47 BDO require an editorial chronology change first.
 
 Allowed choices:
 - The Unfamiliar and Unknown (31 BBD–20 BBD)
@@ -73,7 +87,7 @@ Allowed choices:
 - Exodus and Recovery (0 ABD–16 ABD)
 - Hallowed Preparations (17 ABD–28 ABD)
 - Era of Expansion (29 ABD–40 ABD)
-- To Be Determined (41 ABD–onward)
+- Uncharted Territory (41 ABD–onward)
 
 ## Factions
 
@@ -111,6 +125,51 @@ One or two factual sentences, up to 500 characters, for the timeline and search.
 
 Complete proposed Markdown article, up to 30,000 characters. For an update, provide the whole replacement, not just a list of edits. Separate uncertain claims from established facts in the sources field. Supporting attachments are not automatically embedded in the article.
 
+## Optional faction accounts
+The full event article above is the canonical account. Separate Jedi and Sith articles are optional; they change narrative, title and summary only. Dates, era, factions, images, significance and related events always come from the same event. Do not submit a second event for another perspective. If no account is published, that view clearly falls back to the canonical account. For updates, Keep preserves any existing account; Remove returns that view to canonical fallback. Explain the sources and approval for each account below.
+
+## Jedi account action
+
+Optional. Keep existing account / no new account, replace the complete account, or remove it from publication. Blank fields from an older form mean Keep.
+
+Allowed choices:
+- Keep existing account / no new account
+- Add or replace account
+- Remove existing account
+
+## Jedi account title
+
+Optional when adding/replacing: up to 120 characters. Blank uses the canonical event title. Otherwise leave blank.
+
+## Jedi account summary
+
+Optional when adding/replacing: up to 500 characters. Blank uses the canonical summary. Otherwise leave blank.
+
+## Jedi account article
+
+Required only for Add or replace account: the complete proposed Markdown account, up to 30,000 characters. Avoid headings matching any form label. Otherwise leave blank.
+
+## Sith account action
+
+Optional. Keep existing account / no new account, replace the complete account, or remove it from publication. Blank fields from an older form mean Keep.
+
+Allowed choices:
+- Keep existing account / no new account
+- Add or replace account
+- Remove existing account
+
+## Sith account title
+
+Optional when adding/replacing: up to 120 characters. Blank uses the canonical event title. Otherwise leave blank.
+
+## Sith account summary
+
+Optional when adding/replacing: up to 500 characters. Blank uses the canonical summary. Otherwise leave blank.
+
+## Sith account article
+
+Required only for Add or replace account: the complete proposed Markdown account, up to 30,000 characters. Avoid headings matching any form label. Otherwise leave blank.
+
 ## Locations
 
 Optional: one plain place name per line. Reuse an exact spelling from the recorded location list above when applicable. A sourced new name is permitted pending editorial approval. Leave blank if no named place is involved; do not enter [] or URLs.
@@ -125,7 +184,7 @@ Optional: one exact published slug or full event link per line, chosen from the 
 
 ## Same-year order
 
-Optional integer for ordering events with the same year and calendar: smaller numbers come first. New records default to 0; updates retain the previous value if blank. Equal values use slug order. Ask an editor if the sequence is uncertain.
+Optional integer for ordering events in the same converted canonical year, regardless of the submitted calendar: smaller numbers come first. For example, 1 ADO and 17 ABD share a year. New records default to 0; updates retain the previous value if blank. Equal values use slug order. Ask an editor if the sequence is uncertain.
 
 ## Chronology notes
 
@@ -133,7 +192,7 @@ Optional explanation of same-year ordering or date uncertainty, for reviewers. N
 
 ## Image action
 
-Images are optional. For updates, retain, replace, or remove the current main image. New events using Keep have no image. Only the selected main image is imported; other attachments remain evidence.
+Images are optional. For updates, retain, replace, or remove the current main image. New events using Keep have no image. The main image and explicit gallery slots are imported; supporting attachments remain evidence.
 
 Allowed choices:
 - Keep existing image / no new image
@@ -152,16 +211,68 @@ Required when adding or replacing an image. Describe what readers should underst
 
 Required when adding or replacing an image. State its creator or source and why the community may publish it. This evidence stays in the issue for editorial review.
 
+## Optional image gallery
+The main image appears first, followed by gallery images in the numbered field order. A gallery also works without a main image. Add or replace gallery replaces the complete existing gallery, using up to three images in this form; leave unused slots blank. Keep preserves all existing images, including galleries longer than three. Remove removes only the gallery, not the main image. More than three additional images can be added by an editor in the event file. Each uploaded image has the same 10 MiB / 40 million pixel PNG, JPEG or WebP restrictions as the main image. Supply accurate alt text for every image; captions are optional public text, while source/permission evidence stays in this issue.
+
+## Gallery action
+
+Optional. Choose Keep, Add or replace, or Remove. Leave all image-slot fields blank unless adding/replacing.
+
+Allowed choices:
+- Keep existing gallery / no new gallery
+- Add or replace gallery
+- Remove existing gallery
+
+## Gallery image 1 attachment
+
+Upload or paste ONE GitHub-hosted PNG, JPEG or WebP image, as for Main image attachment. Use slots in the order readers should see them. Leave unused slots blank.
+
+## Gallery image 1 alt text
+
+Required if this slot has an image. Describe its content, up to 500 characters.
+
+## Gallery image 1 caption
+
+Optional public caption, up to 500 characters. Leave blank if unnecessary.
+
+## Gallery image 2 attachment
+
+Upload or paste ONE GitHub-hosted PNG, JPEG or WebP image, as for Main image attachment. Use slots in the order readers should see them. Leave unused slots blank.
+
+## Gallery image 2 alt text
+
+Required if this slot has an image. Describe its content, up to 500 characters.
+
+## Gallery image 2 caption
+
+Optional public caption, up to 500 characters. Leave blank if unnecessary.
+
+## Gallery image 3 attachment
+
+Upload or paste ONE GitHub-hosted PNG, JPEG or WebP image, as for Main image attachment. Use slots in the order readers should see them. Leave unused slots blank.
+
+## Gallery image 3 alt text
+
+Required if this slot has an image. Describe its content, up to 500 characters.
+
+## Gallery image 3 caption
+
+Optional public caption, up to 500 characters. Leave blank if unnecessary.
+
+## Gallery sources and permission
+
+Required when adding/replacing a gallery. Identify the creator/source and publication permission for each numbered image, up to 5,000 characters.
+
 ## Supporting attachments
 
-Optional images, documents, or other evidence: drag, paste, or upload here. Explain what each file supports. These files stay in the issue; only Main image attachment is imported automatically.
+Optional images, documents, or other evidence: drag, paste, or upload here. Explain what each file supports. These files stay in the issue; only the explicit main-image and gallery fields are imported automatically.
 
 ## Lore sources and approval
 
 Required: links to community lore records, supporting evidence, and the editor or approval status. If not approved, say Awaiting approval. Explain new names, changes to an existing record, and uncertainty. A form submission is not approval. Sources stay in the issue; include any sources readers should see in the article itself.
 
 ## Fields prepared by the workflow
-You do not edit YAML: the workflow sets title, slug, year, calendar, timelineOrder, era, factions, types, importance, summary, image/imageAlt, locations, characters, and relatedEvents from this form. It adds submissionIssue and submissionBodySha for tracking. New slugs are generated; update slugs are retained. Generated accepted lore uses draft: false and demo: false, inside a draft pull request that still needs review and merge. This form accepts canonical submissions only; demo records and unpublished drafts use the maintainer file-editing route.
+You do not edit YAML: the workflow sets title, slug, year, calendar, timelineOrder, era, factions, types, importance, summary, image/imageAlt, gallery entries, locations, characters, and relatedEvents from this form. Optional faction accounts are prepared as separate files in src/content/perspectives/ and share the canonical event metadata. Year/calendar are normalized to the single canonical BBD/ABD date even when you submit BDO/ADO; the workflow feedback shows both dates. It adds submissionIssue and submissionBodySha for tracking. New slugs are generated; update slugs are retained. Generated accepted lore uses draft: false and demo: false, inside a draft pull request that still needs review and merge. This form accepts canonical submissions only; demo records and unpublished drafts use the maintainer file-editing route.
 
 ## Review process
 

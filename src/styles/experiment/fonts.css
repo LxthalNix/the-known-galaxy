@@ -1,0 +1,51 @@
+@font-face { font-family: Ubuntu; font-style: normal; font-weight: 400; font-display: swap; src: url('../../../public/fonts/ubuntu/ubuntu-regular.ttf') format('truetype'); }
+@font-face { font-family: Ubuntu; font-style: normal; font-weight: 500; font-display: swap; src: url('../../../public/fonts/ubuntu/ubuntu-medium.ttf') format('truetype'); }
+@font-face { font-family: Ubuntu; font-style: normal; font-weight: 700; font-display: swap; src: url('../../../public/fonts/ubuntu/ubuntu-bold.ttf') format('truetype'); }
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/libre-baskerville-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Libre Baskerville';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/libre-baskerville-1.ttf) format('truetype');
+}
+
+
+@font-face {
+  font-family: 'Noto Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/noto-serif-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Noto Serif';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/noto-serif-1.ttf) format('truetype');
+}
+
+
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/source-serif-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(../../../public/fonts/experiment/source-serif-1.ttf) format('truetype');
+}

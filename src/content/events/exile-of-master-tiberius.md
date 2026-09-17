@@ -18,7 +18,7 @@ locations:
 characters:
   - Grandmaster Tiberius
 relatedEvents: []
-draft: false
+draft: true
 demo: false
 submissionIssue: 11
 submissionBodySha: 3bb9dfe32714a586e56732ed75cacb8db2b857e8e992360c32fb2a166da6d892

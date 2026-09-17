@@ -18,7 +18,7 @@ locations:
 characters: []
 relatedEvents:
   - jedi-escape-to-the-dawn-temple-on-spintir
-draft: false
+draft: true
 demo: false
 submissionIssue: 13
 submissionBodySha: f408cb33e4f6bc140f3b32039d614e5c4cc4631aecdf04dcc2ada700c698d14f

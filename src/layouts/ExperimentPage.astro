@@ -1,0 +1,21 @@
+---
+import TimelineExperiment from '../components/experiment/TimelineExperiment';
+import { experimentalContent } from '../utils/experimental-content';
+import { experimentFixtures } from '../data/experiment-fixtures';
+import { densityFixtures } from '../data/density-fixtures';
+import { currentCanonicalDate } from '../utils/canonical-calendar';
+import { withBase } from '../utils/paths';
+import '../styles/global.css';
+import '../styles/experiment/fonts.css';
+import '../styles/experiment/concepts.css';
+const { concept } = Astro.props as { concept: 'a' | 'b' };
+const base = import.meta.env.BASE_URL;
+const { events, accounts } = await experimentalContent(base);
+const fixtures = [...await experimentFixtures(), ...densityFixtures(events), ...densityFixtures(events, 5, 37, 65)];
+const initialDate = currentCanonicalDate();
+---
+<!doctype html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="robots" content="noindex,nofollow" /><meta name="theme-color" content="#06090d" /><link rel="icon" type="image/svg+xml" href={withBase('favicon.svg', base)} /><title>Concept {concept.toUpperCase()} — TKG timeline experiment</title></head>
+  <body><a class="skip-link" href="#main-content">Skip to archive</a><TimelineExperiment events={events} fixtures={fixtures} accounts={accounts} concept={concept} base={base} initialDate={initialDate} client:load /><noscript><p>This local timeline experiment requires JavaScript. <a href={withBase('', base)}>View the existing archive.</a></p></noscript></body>
+</html>

@@ -13,6 +13,7 @@
     "lore:sync": "node --experimental-strip-types scripts/lore-form.mjs",
     "lore:check": "node --experimental-strip-types scripts/lore-form.mjs --check",
     "build": "astro build",
+    "build:experiment": "node scripts/build-experiment.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },
