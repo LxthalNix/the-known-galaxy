@@ -52,9 +52,13 @@ The proposed public title, up to 120 characters. For a new event the workflow ge
 ## Two calendars, one chronology
 Choose the calendar you know; do not submit the same event twice. BBD/ABD counts before/after the Battle of Dathomir. BDO/ADO counts before/after the Destruction of Ossus. Ossus is 16 ABD = 0 ADO; the Battle of Dathomir is 0 ABD = 16 BDO. Both advance by one canonical year per real calendar month, regardless of month length.
 
-The workflow automatically converts either calendar to the shared BBD/ABD event metadata before checking the era and same-year order. The website's Jedi view derives BDO/ADO; Sith and Neutral use BBD/ABD. Only one date is stored, so they cannot drift apart. For example, 1 ADO = 17 ABD and 1 BDO = 15 ABD. Origins use the after-calendar: 0 ABD or 0 ADO, never 0 BBD or 0 BDO.
+The workflow automatically converts either calendar to the shared BBD/ABD event metadata before automatically deriving the era and checking same-year order. The website's Jedi view derives BDO/ADO; Sith and Neutral use BBD/ABD. Only one date is stored, so they cannot drift apart. For example, 1 ADO = 17 ABD and 1 BDO = 15 ABD. Origins use the after-calendar: 0 ABD or 0 ADO, never 0 BBD or 0 BDO.
 
-**Era conversion reference** (inclusive endpoints; the dropdown retains Dathomir dates for compatibility):
+**Automatic era assignment**
+
+You do not choose an era. The workflow derives it from the converted year using `src/data/eras.ts`. Both endpoints below are inclusive; Uncharted Territory remains open-ended. Dates before 31 BBD / 47 BDO require an editorial chronology change first. Existing issues with an Era field are still accepted, but that old choice is ignored.
+
+**Era conversion reference** (inclusive endpoints):
 
 | Era | Dathomir calendar | Ossus calendar |
 | --- | --- | --- |
@@ -78,18 +82,6 @@ Allowed choices:
 - ABD
 - BDO
 - ADO
-
-## Era
-
-Choose the era containing the converted canonical date. The dropdown displays Dathomir dates; the table above gives each range in the Jedi calendar. Both endpoints are inclusive. Options come from src/data/eras.ts; checks convert first and reject mismatches. Dates before 31 BBD / 47 BDO require an editorial chronology change first.
-
-Allowed choices:
-- The Unfamiliar and Unknown (31 BBD–20 BBD)
-- The Eminence (19 BBD–1 BBD)
-- Exodus and Recovery (0 ABD–16 ABD)
-- Hallowed Preparations (17 ABD–28 ABD)
-- Era of Expansion (29 ABD–40 ABD)
-- Uncharted Territory (41 ABD–onward)
 
 ## Factions
 
@@ -274,7 +266,7 @@ Optional images, documents, or other evidence: drag, paste, or upload here. Expl
 Required: links to community lore records, supporting evidence, and the editor or approval status. If not approved, say Awaiting approval. Explain new names, changes to an existing record, and uncertainty. A form submission is not approval. Sources stay in the issue; include any sources readers should see in the article itself.
 
 ## Fields prepared by the workflow
-You do not edit YAML: the workflow sets title, slug, year, calendar, timelineOrder, era, factions, types, importance, summary, image/imageAlt, gallery entries, locations, characters, and relatedEvents from this form. Optional faction accounts are prepared as separate files in src/content/perspectives/ and share the canonical event metadata. Year/calendar are normalized to the single canonical BBD/ABD date even when you submit BDO/ADO; the workflow feedback shows both dates. It adds submissionIssue and submissionBodySha for tracking. New slugs are generated; update slugs are retained. Generated accepted lore uses draft: false and demo: false, inside a draft pull request that still needs review and merge. This form accepts canonical submissions only; demo records and unpublished drafts use the maintainer file-editing route.
+You do not edit YAML: the workflow sets title, slug, year, calendar, timelineOrder, era, factions, types, importance, summary, image/imageAlt, gallery entries, locations, characters, and relatedEvents from this form. Optional faction accounts are prepared as separate files in src/content/perspectives/ and share the canonical event metadata. Year/calendar are normalized to the single canonical BBD/ABD date even when you submit BDO/ADO; the era is derived from that converted year, and workflow feedback shows both dates and the assigned era. It adds submissionIssue and submissionBodySha for tracking. New slugs are generated; update slugs are retained. Generated accepted lore uses draft: false and demo: false, inside a draft pull request that still needs review and merge. This form accepts canonical submissions only; demo records and unpublished drafts use the maintainer file-editing route.
 
 ## Review process
 
