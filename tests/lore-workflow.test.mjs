@@ -8,6 +8,7 @@ import YAML from 'yaml';
 import { loadArchive, loadPerspectiveAccounts, formDefinition, generatedFiles, referenceData, parseEventFile, syncForm, extendedFormField } from '../scripts/lore-form.mjs';
 import { bodySha, validateSubmission, downloadMainImage, prepareFiles, eventReference } from '../scripts/lore-submission.mjs';
 import { stage, publishDraft, trackPublication, feedback } from '../scripts/lore-github.mjs';
+import { fromCanonicalYear } from '../src/utils/lore-calendar.ts';
 import { safeLoreHtml } from '../src/utils/safe-html.ts';
 
 // Keep workflow fixtures independent of newly submitted or edited production lore.
@@ -15,7 +16,7 @@ const fixtureRoot = 'tests/fixtures/archive';
 const records = await loadArchive(fixtureRoot);
 const defaults = {
   'request-kind': 'New event', 'event-title': 'Workflow test fixture', year: '0', calendar: 'ABD',
-  era: 'Exodus and Recovery (0 ABD–16 ABD)', factions: 'Jedi, Sith', 'event-types': 'Military',
+  factions: 'Jedi, Sith', 'event-types': 'Military',
   importance: 'Standard', summary: 'A synthetic workflow test, never committed as lore.',
   article: 'Test-only article.\n\n## Detail\n\n**Markdown** is preserved.',
   'image-action': 'Keep existing image / no new image', sources: 'Test-only approval evidence.',
@@ -25,6 +26,9 @@ function issue(overrides = {}, number = 99) {
   const values = { ...defaults, ...overrides };
   const body = formDefinition(records).body.filter((f) => f.id).map((f) => `### ${f.attributes.label}\n\n${values[f.id] || '_No response_'}`).join('\n\n');
   return { number, title: '[Lore] Test fixture', body, state: 'open', labels: [] };
+}
+function withLegacyEra(input, era) {
+  return { ...input, body: input.body.replace('### Factions\n', `### Era\n\n${era}\n\n### Factions\n`) };
 }
 async function sandbox(t) {
   const root = await mkdtemp(join(tmpdir(), 'known-galaxy-lore-test-'));
@@ -51,7 +55,7 @@ test('older complete issues retain compatibility when gallery and account extens
   assert.equal(result.valid, true, JSON.stringify(result.errors));
   assert.deepEqual(result.galleryUploads, []);
   assert.deepEqual(result.accountChanges, []);
-  const oldEra = validateSubmission(issue({ year: '70', era: 'To Be Determined (41 ABD–onward)' }), records);
+  const oldEra = validateSubmission(withLegacyEra(issue({ year: '70' }), 'To Be Determined (41 ABD–onward)'), records);
   assert.equal(oldEra.valid, true, JSON.stringify(oldEra.errors));
   assert.equal(oldEra.data.era, 'to-be-determined');
 });
@@ -118,15 +122,15 @@ test('corrections keep galleries and faction narratives, while explicit removal 
   assert.equal(saved[0].body, account.body);
 });
 
-test('invalid numeric dates and era mismatches give actionable feedback', () => {
-  for (const overrides of [{ year: '-1' }, { year: '17 ABD' }, { year: '0', calendar: 'BBD' }, { year: '29' }]) {
+test('invalid numeric dates and dates outside configured eras give actionable feedback', () => {
+  for (const overrides of [{ year: '-1' }, { year: '17 ABD' }, { year: '0', calendar: 'BBD' }, { year: '32', calendar: 'BBD' }]) {
     const result = validateSubmission(issue(overrides), records);
     assert.equal(result.valid, false);
-    assert(result.errors.some((s) => /integer|0 BBD|date|origin/.test(s)));
+    assert(result.errors.some((s) => /integer|0 BBD|date|origin|No era is configured/.test(s)));
   }
 });
 
-test('either submission calendar normalizes before era checks and reports the conversion', () => {
+test('either submission calendar normalizes before deriving the era and reports the conversion', () => {
   for (const [year,calendar,expectedYear,expectedCalendar,era] of [
     ['0','ADO',16,'ABD','Exodus and Recovery (0 ABD–16 ABD)'],
     ['16','BDO',0,'ABD','Exodus and Recovery (0 ABD–16 ABD)'],
@@ -138,11 +142,48 @@ test('either submission calendar normalizes before era checks and reports the co
     assert.equal(result.valid,true,JSON.stringify(result.errors));
     assert.equal(result.data.year,expectedYear); assert.equal(result.data.calendar,expectedCalendar);
     assert.equal(result.data.timelineOrder,3);
+    assert.ok(feedback(result).includes(`assigned era ${era.split(' (')[0]}`));
     assert.ok(feedback(result).includes(`canonical date ${expectedYear} ${expectedCalendar}`));
   }
   assert.equal(validateSubmission(issue({year:'0',calendar:'BDO'}),records).valid,false);
-  assert.equal(validateSubmission(issue({year:'1',calendar:'ADO'}),records).valid,false);
+  assert.equal(validateSubmission(issue({year:'1',calendar:'ADO'}),records).valid,true);
   assert.equal(validateSubmission(issue({year:'48',calendar:'BDO',era:'The Unfamiliar and Unknown (31 BBD–20 BBD)'}),records).valid,false);
+});
+
+
+test('era assignment covers inclusive boundaries, both epochs and open-ended future years', () => {
+  const cases = [[-31,'unfamiliar-and-unknown'],[-20,'unfamiliar-and-unknown'],[-19,'the-eminence'],[-1,'the-eminence'],[0,'exodus-and-recovery'],[16,'exodus-and-recovery'],[17,'hallowed-preparations'],[28,'hallowed-preparations'],[29,'era-of-expansion'],[40,'era-of-expansion'],[41,'to-be-determined'],[65,'to-be-determined'],[100,'to-be-determined']];
+  for (const [canonical, expected] of cases) for (const system of ['dathomir','ossus']) {
+    const date = fromCanonicalYear(canonical, system);
+    const result = validateSubmission(issue({ year: String(date.year), calendar: date.calendar }), records);
+    assert.equal(result.valid, true, JSON.stringify(result.errors));
+    assert.equal(result.data.era, expected, JSON.stringify({ canonical, system }));
+  }
+  for (const system of ['dathomir','ossus']) {
+    const date = fromCanonicalYear(-32, system);
+    const result = validateSubmission(issue({ year: String(date.year), calendar: date.calendar }), records);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some(error => error.includes('No era is configured')));
+  }
+});
+
+test('retired era fields are optional and cannot override dates or contaminate later fields', () => {
+  assert.ok(!formDefinition(records).body.some(field => field.id === 'era'));
+  const legacy = withLegacyEra(issue({ year:'1', calendar:'ADO' }), 'Exodus and Recovery (0 ABD–16 ABD)');
+  const result = validateSubmission(legacy, records);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.equal(result.data.era, 'hallowed-preparations');
+  assert.equal(result.values.calendar, 'ADO');
+  assert.equal(result.article, defaults.article);
+  assert.equal(validateSubmission(withLegacyEra(legacy, 'Other old value'), records).valid, false);
+});
+
+test('year corrections automatically change era without losing the existing record identity', () => {
+  const result = validateSubmission(issue({ 'request-kind':'Update an existing event', 'existing-event':'rise-of-darth-cronos', year:'29', calendar:'ABD' }), records);
+  assert.equal(result.valid, true, JSON.stringify(result.errors));
+  assert.equal(result.data.era, 'era-of-expansion');
+  assert.equal(result.data.slug, 'rise-of-darth-cronos');
+  assert.equal(result.existing.path, records.find(record => record.data.slug === 'rise-of-darth-cronos').path);
 });
 
 test('Jedi-calendar corrections preserve links and prevent accidental epoch drift', () => {

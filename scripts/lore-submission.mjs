@@ -9,7 +9,7 @@ import { eras } from '../src/data/eras.ts';
 import { chronologyKey } from '../src/utils/chronology.ts';
 import { loreCalendars } from '../src/data/lore-calendars.ts';
 import { toCanonicalDate, formatPerspectiveDate } from '../src/utils/lore-calendar.ts';
-import { formDefinition, referenceData, eraLabel, generatedFiles, site, extendedFormField } from './lore-form.mjs';
+import { formDefinition, referenceData, generatedFiles, site, extendedFormField } from './lore-form.mjs';
 
 export const bodySha = (body) => createHash('sha256').update(body ?? '').digest('hex');
 export const slugify = (title) => title.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 100).replace(/-$/, '');
@@ -18,6 +18,9 @@ export function parseForm(body, records) {
   body = (body ?? '').replaceAll('\r\n', '\n');
   const fields = formDefinition(records).body.filter((f) => f.id);
   const labels = new Map(fields.map((f, index) => [f.attributes.label, { id: f.id, index }]));
+  // Parse the retired heading so old dropdown text cannot leak into Calendar.
+  // It is optional and ignored; era always comes from the converted date.
+  labels.set('Era', { id: 'era', index: fields.findIndex(field => field.id === 'calendar') + .5 });
   const values = {}, errors = [];
   let active, previous = -1, fence = '';
   for (const line of (body ?? '').replaceAll('\r\n', '\n').split('\n')) {
@@ -65,7 +68,6 @@ export function validateSubmission(issue, records, accountRecords = []) {
   const parsed = parseForm(issue.body, records), v = parsed.values;
   const errors = [...parsed.errors], warnings = [];
   const definition = formDefinition(records);
-  if (v.era === 'To Be Determined (41 ABD–onward)') v.era = eraLabel(eras.find(era => era.id === 'to-be-determined'));
   for (const f of definition.body.filter((f) => f.type === 'dropdown')) {
     if (extendedFormField(f.id) && !v[f.id]) v[f.id] = f.attributes.options[0];
     const selected = f.attributes.multiple ? v[f.id].split(',').map((s) => s.trim()).filter(Boolean) : [v[f.id]];
@@ -102,10 +104,15 @@ export function validateSubmission(issue, records, accountRecords = []) {
   if (v.characters.split('\n').some((n) => ['jedi', 'sith'].includes(n.trim().toLowerCase()))) errors.push('Characters contains a faction. Put Jedi/Sith in Factions and list only named individuals here.');
   for (const [id, max] of [['event-title', 120], ['summary', 500], ['article', 30000], ['sources', 5000], ['image-alt', 500]]) if (v[id].length > max) errors.push(`${id} must be no longer than ${max} characters.`);
   if (!/- \[[xX]\]/.test(v.review)) errors.push('Acknowledge the Review process checkbox.');
-  const era = eras.find((e) => eraLabel(e) === v.era);
   const submittedYear = integer(v.year, undefined, 'Year', true);
   let canonicalDate = { year: submittedYear, calendar: v.calendar };
-  try { canonicalDate = toCanonicalDate(submittedYear, v.calendar); }
+  let era;
+  try {
+    canonicalDate = toCanonicalDate(submittedYear, v.calendar);
+    const date = chronologyKey(canonicalDate.year, canonicalDate.calendar);
+    era = eras.find(e => date >= chronologyKey(e.start.year, e.start.calendar) && (!e.end || date <= chronologyKey(e.end.year, e.end.calendar)));
+    if (!era) errors.push(`No era is configured for ${submittedYear} ${v.calendar}. Dates before 31 BBD / 47 BDO require an editorial chronology change; an editor must configure a matching era before preparation.`);
+  }
   catch (error) { errors.push(error.message); }
   const epoch = Object.values(loreCalendars).find(calendar => calendar.event === slug);
   if (epoch && (canonicalDate.calendar === 'BBD' ? -canonicalDate.year : canonicalDate.year) !== epoch.origin) errors.push(`${epoch.name} defines a calendar origin. Changing its date requires an editorial update to src/data/lore-calendars.ts, not an ordinary event correction.`);
@@ -169,10 +176,7 @@ export function validateSubmission(issue, records, accountRecords = []) {
   }
   const result = eventSchema.safeParse(data);
   if (!result.success) errors.push(...result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`));
-  const date = chronologyKey(data.year, data.calendar);
-  const expected = eras.find((e) => date >= chronologyKey(e.start.year, e.start.calendar) && (!e.end || date <= chronologyKey(e.end.year, e.end.calendar)));
-  if (era && expected && era.id !== expected.id) errors.push(`The date belongs to ${eraLabel(expected)}.`);
-  const dateSummary = errors.length ? undefined : `${submittedYear} ${v.calendar} submitted; canonical date ${data.year} ${data.calendar}; Jedi date ${formatPerspectiveDate(data.year, data.calendar, 'jedi')}.`;
+  const dateSummary = errors.length ? undefined : `${submittedYear} ${v.calendar} submitted; canonical date ${data.year} ${data.calendar}; Jedi date ${formatPerspectiveDate(data.year, data.calendar, 'jedi')}; assigned era ${era.name}.`;
   return { valid: !errors.length, errors: [...new Set(errors)], warnings, data: result.success ? result.data : data, article: v.article, imageUrl, galleryUploads, accountChanges, existing, bodyHash: bodySha(issue.body), values: v, dateSummary };
 }
 

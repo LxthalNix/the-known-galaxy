@@ -5,12 +5,12 @@ The easiest way to contribute is the [lore event form](https://github.com/Lxthal
 ## Submit an event or correction
 
 1. Sign in to GitHub and open the form. Choose **New event** or **Update an existing event**. For updates, paste the existing event's website link including its hash.
-2. Complete the title, year, calendar, era, factions, types, importance, summary, and full article. Select multiple factions or types where appropriate. For corrections, provide the complete proposed replacement and explain the changes under **Lore sources and approval**.
+2. Complete the title, year, calendar, factions, types, importance, summary, and full article. The era is assigned automatically from the converted year. Select multiple factions or types where appropriate. For corrections, provide the complete proposed replacement and explain the changes under **Lore sources and approval**.
 3. Read the form's recorded location/character lists and published event references. Reuse exact existing spellings; support proposed new names with community lore and editorial approval. Optionally add names, related event slugs/links, same-year order, and chronology notes. Choose the image action, upload the selected image into **Main image attachment**, and supply its alt text and source/permission. Optional galleries and faction articles use their dedicated fields described below; other evidence belongs in **Supporting attachments**.
 4. Supply lore sources and the approval status, then create the issue. A reviewer can ask questions and discuss changes in the issue.
 5. Automated feedback checks the submission. After editorial approval, a maintainer comments `/prepare-lore` to generate the Markdown, optimized selected image, draft pull request, and browser-ready previews. A human reviews and merges after checks pass; GitHub Pages then publishes it.
 
-Creating, editing, or closing an issue does not change the website. Issue responses become Markdown in the issue body, and later edits are made through that body rather than reopening the original form. Automated checks validate numeric years, conditional fields, choices, and date/era combinations; editors still verify canon, sources, and image permission. Read [Submission workflow](SUBMISSION_WORKFLOW.md) for setup and reviewer steps, and [Content reference](CONTENT_REFERENCE.md) for all data choices and current recorded names. Run `npm run lore:sync` after manual content or configuration changes so the generated form/reference stay current.
+Creating, editing, or closing an issue does not change the website. Issue responses become Markdown in the issue body, and later edits are made through that body rather than reopening the original form. Automated checks validate numeric years, conditional fields, choices, and whether the converted date has a configured era; editors still verify canon, sources, and image permission. Read [Submission workflow](SUBMISSION_WORKFLOW.md) for setup and reviewer steps, and [Content reference](CONTENT_REFERENCE.md) for all data choices and current recorded names. Run `npm run lore:sync` after manual content or configuration changes so the generated form/reference stay current.
 
 ## Optional galleries and faction accounts
 
@@ -18,7 +18,7 @@ The issue form accepts up to three additional gallery images, each with its own 
 
 Separate Jedi/Sith articles are optional. Choose **Add or replace account** for that perspective and supply the complete article; its title and summary may be left blank to use the canonical values. **Keep** leaves any existing article untouched. **Remove** preserves its source file as a draft and restores canonical fallback. These accounts share the event's one canonical date, era, images and relationships; they cannot override metadata or create another event. Explain each account's evidence and approval under **Lore sources and approval**. Existing account glossary metadata is retained on replacement; editors can change that optional glossary in its source file.
 
-Gallery images are decoded with the same size/type limits as the main image and saved under `public/images/events/`. Their small display derivatives are generated before Astro copies assets. Supporting attachments remain in the issue. Existing complete issues without these new optional fields remain compatible; the previous future-era display label is also accepted.
+Gallery images are decoded with the same size/type limits as the main image and saved under `public/images/events/`. Their small display derivatives are generated before Astro copies assets. Supporting attachments remain in the issue. Existing complete issues without these new optional fields remain compatible; retired Era fields are also accepted and ignored in favor of the era derived from the date.
 
 ## Maintainer review and publication
 
@@ -36,11 +36,11 @@ In the issue form, enter the calendar you know: **BBD/ABD** (Battle of Dathomir)
 
 The shared epoch configuration in `src/data/lore-calendars.ts` places Ossus at **16 ABD = 0 ADO**. Examples: **15 ABD = 1 BDO**, **17 ABD = 1 ADO**, **37 ABD = 21 ADO**. Both calendars advance by one canonical year per real calendar month; this is an offset, not a different time rate. The experiment's monthly anchor remains September 2026 = 37 ABD = 21 ADO, with UTC month boundaries.
 
-Automation converts the submitted calendar before checking the era. The issue form includes a table showing all era ranges in both calendars, while preserving the original dropdown labels so existing submissions still work. Its feedback states the submitted date, canonical storage date and Jedi date for review. Same-year order is shared: `1 ADO` and `17 ABD` belong to the same year and sequence. Submit one record, even when both factions are involved.
+Automation converts the submitted calendar and automatically assigns the era containing that year using `src/data/eras.ts`. The issue form includes a reference table showing all era ranges in both calendars; no era input is needed. Its feedback states the submitted date, canonical storage date, Jedi date and assigned era for review. Existing issues with an Era field remain usable; that old choice is ignored. Changing an event's year also updates its era automatically. Same-year order is shared: `1 ADO` and `17 ABD` belong to the same year and sequence. Submit one record, even when both factions are involved.
 
 Event files continue to store only normalized `year` and `calendar: BBD/ABD`. Do not add a second independently maintained date or put BDO/ADO directly into Markdown metadata. Jedi display dates are derived from this single chronology. Changing either origin requires a reviewed configuration/content change together; ordinary issue corrections cannot move a calendar origin.
 
-These calendar and issue-form changes are currently prepared in the local experimental worktree. The GitHub form and deployed website change only when their changes are published.
+Dates before 31 BBD / 47 BDO cannot be prepared until an editor extends the configured chronology. Uncharted Territory accepts 41 ABD onward without an upper submission limit.
 
 ## Prepare archive files with GitHub
 
@@ -91,7 +91,7 @@ If you work locally, duplicate the same template into `src/content/events/`, the
 | `era-of-expansion` | 29 ABD–40 ABD |
 | `to-be-determined` | 41 ABD onward |
 
-An invalid date/era combination fails validation rather than silently moving the event. Uncharted Territory starts at 41 ABD and remains open-ended for submissions. The website initially displays it through 65 ABD and advances the horizon when current canon or published records require it. New era configuration belongs in `src/data/eras.ts`.
+Issue submissions derive their era automatically; manually edited Markdown must still specify the correct era id, and invalid date/era combinations fail validation. Uncharted Territory starts at 41 ABD and remains open-ended for submissions. The website initially displays it through 65 ABD and advances the horizon when current canon or published records require it. New era configuration belongs in `src/data/eras.ts`.
 
 ### Same-year records
 
